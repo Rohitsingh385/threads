@@ -1,8 +1,12 @@
 import express from "express"
 import { errorHandler } from "./middleware/error.middleware.js"
+import userRoute from "./modules/user/user.route.js"
+import cookieParser from "cookie-parser"
 const app = express()
 
+
 app.use(express.json())
+app.use(cookieParser())
 
 app.get('/health', (req, res) => {
     res.status(200).json({
@@ -10,6 +14,9 @@ app.get('/health', (req, res) => {
         message: "Server is running"
     })
 })
+
+app.use('/api/v1/user', userRoute)
+
 
 
 app.use((req, res) => {

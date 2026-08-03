@@ -9,7 +9,13 @@ const envSchema = z.object({
         .int(),
     MONGO_URI: z
         .string()
-        .trim()
+        .trim(),
+    ACCESS_TOKEN: z
+        .string()
+        .trim(),
+    REFRESH_TOKEN: z
+        .string()
+        .trim(),
 })
 
 export const env = envSchema.parse(process.env)
