@@ -24,3 +24,10 @@ dist-ssr
 *.sw?
 
 .env
+/src/generated/prisma
+
+#agents/prisma
+.agents
+.claude
+.windsurf
+skills-lock.json

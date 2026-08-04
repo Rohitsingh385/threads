@@ -1,12 +1,19 @@
 import { signupInput, loginInput } from "./user.validation.js";
-import { User } from "./user.model.js";
+import { prisma } from "../../config/prisma.js"
 import { ApiError } from "../../utils/ApiError.js";
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../../utils/jwt.js";
 import bcrypt from "bcrypt"
-export const signUpService = async (data: signupInput) => {
 
-    const checkExists = await User.findOne({
-        email: data.email
+export const signUpService = async (input: signupInput) => {
+
+    const email = input.email.toLowerCase().trim()
+    const checkExists = await prisma.user.findFirst({
+        where: {
+            OR: [
+                { email: email },
+                { username: input.username }
+            ]
+        }
     })
     if (checkExists) {
         throw new ApiError(
@@ -14,22 +21,31 @@ export const signUpService = async (data: signupInput) => {
             'user already exists'
         )
     }
+    const hashPassword = await bcrypt.hash(input.password, 10)
 
-    const user = await User.create(data)
+    const user = await prisma.user.create({
+        data: {
+            username: input.username,
+            email: email,
+            password: hashPassword
+        }
+    })
 
     return {
-        id: user._id,
+        id: user.id,
         username: user.username,
         email: user.email
     }
 
 }
 
-export const loginService = async (data: loginInput) => {
-
-    const user = await User.findOne({
-        email: data.email
-    }).select("+password")
+export const loginService = async (input: loginInput) => {
+    const email = input.email.toLocaleLowerCase().trim()
+    const user = await prisma.user.findUnique({
+        where: {
+            email: email
+        }
+    })
 
     if (!user) {
         throw new ApiError(
@@ -37,7 +53,8 @@ export const loginService = async (data: loginInput) => {
             'invalid email or password'
         )
     }
-    const checkPassword = await bcrypt.compare(data.password, user.password)
+    const checkPassword = await bcrypt.compare(input.password, user.password)
+
     if (!checkPassword) {
         throw new ApiError(
             401,
@@ -45,7 +62,7 @@ export const loginService = async (data: loginInput) => {
         )
     }
     const payload = {
-        userId: user._id.toString(),
+        userId: user.id,
         role: user.role
     }
     const accessToken = generateAccessToken(payload)
@@ -61,7 +78,11 @@ export const refreshTokenService = async (token: string) => {
 
     const payload = verifyRefreshToken(token)
 
-    const user = await User.findById(payload.userId)
+    const user = await prisma.user.findUnique({
+        where : {
+            id: payload.userId
+        }
+    })
     if (!user) {
         throw new ApiError(
             401,
@@ -69,7 +90,7 @@ export const refreshTokenService = async (token: string) => {
         )
     }
     const newPayload = {
-        userId: user._id.toString(),
+        userId: user.id,
         role: user.role
     }
     const accessToken = generateAccessToken(newPayload)
@@ -80,7 +101,11 @@ export const refreshTokenService = async (token: string) => {
     }
 }
 export const meService = async (userId: string) => {
-    const user = await User.findById(userId)
+    const user = await prisma.user.findUnique({
+        where: {
+            id: userId
+        }
+    })
 
     if (!user) {
         throw new ApiError(
@@ -88,5 +113,11 @@ export const meService = async (userId: string) => {
             'user doesnt not exists'
         )
     }
-    return user
+    return {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        emailVerified: user.emailVerified
+    }
 }
