@@ -37,5 +37,25 @@ export const otpSchema = z.object({
             .max(6)
     })
 })
+
+export const forgotPasswordSchema = z.object({
+    body: z.object({
+        email: z
+            .string()
+            .trim()
+    })
+})
+
+export const resetPasswordSchema = z.object({
+    body: z.object({
+        token: z
+            .string()
+            .trim(),
+        newPassword: z
+            .string()
+            .trim()
+            .min(8)
+    })
+})
 export type signupInput = z.infer<typeof signupSchema>["body"]
 export type loginInput = z.infer<typeof loginSchema>["body"]

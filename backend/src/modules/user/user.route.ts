@@ -1,7 +1,7 @@
 import Router from "express"
 import { validate } from "../../middleware/validate.js"
-import { signupSchema, loginSchema, otpSchema } from "./user.validation.js"
-import { signupController, loginController, meController, logoutController, refreshTokenController, verifyOtpController, resendOtpController } from "./user.controller.js"
+import { signupSchema, loginSchema, otpSchema,forgotPasswordSchema ,resetPasswordSchema} from "./user.validation.js"
+import { signupController, loginController, meController, logoutController, refreshTokenController, verifyOtpController, resendOtpController, forgotPasswordController ,resetPasswordController} from "./user.controller.js"
 import { authMiddleware } from "../../middleware/auth.middleware.js"
 const router = Router()
 
@@ -12,4 +12,6 @@ router.get('/me', authMiddleware, meController)
 router.get('/logout', authMiddleware, logoutController)
 router.post('/verify-otp', validate(otpSchema), authMiddleware, verifyOtpController)
 router.post('/resend-otp', authMiddleware, resendOtpController)
+router.post('/forgot-password', validate(forgotPasswordSchema) , forgotPasswordController)
+router.post('/reset-password', validate(resetPasswordSchema) , resetPasswordController)
 export default router

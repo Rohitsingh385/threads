@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../../utils/asyncHandler.js";
-import { signUpService, loginService, meService, refreshTokenService, verifyOtp, resendOtp } from "./user.service.js"
+import { signUpService, loginService, meService, refreshTokenService, verifyOtp, resendOtp , forgotPassword, resetPassword} from "./user.service.js"
 import { ApiError } from "../../utils/ApiError.js";
 export const signupController = asyncHandler(async (req: Request, res: Response) => {
 
@@ -112,5 +112,27 @@ export const resendOtpController = asyncHandler(async (req: Request, res: Respon
         success: true,
         message: 'Otp sent successfully',
         data: result
+    })
+})
+
+export const forgotPasswordController  = asyncHandler(async(req: Request, res: Response)=> {
+
+    await forgotPassword(req.body.email)
+
+    return res.status(200).json({
+        success: true,
+        message: "If an account exists, a password reset link has been sent.",
+
+    })
+})
+
+export const resetPasswordController = asyncHandler(async(req: Request, res: Response)=> {
+
+
+    const result = await resetPassword(req.body.token, req.body.newPassword)
+
+    return res.status(200).json({
+        success: true,
+        message: 'password reset',
     })
 })

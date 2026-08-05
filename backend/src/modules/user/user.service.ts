@@ -6,6 +6,7 @@ import bcrypt from "bcrypt"
 import { generateOtp } from "../../utils/Otp.js";
 import { redisClient } from "../../config/redis.js";
 import { sendMail } from "../../utils/transporter.js";
+import { generateHexToken } from "../../utils/token.js";
 
 export const signUpService = async (input: signupInput) => {
 
@@ -244,5 +245,95 @@ export const resendOtp = async (userId: string) => {
             'Failed to send verification email. Please try again.'
         )
     }
+    return
+}
+
+export const forgotPassword = async(email: string)=> {
+    const user = await prisma.user.findUnique({
+        where: {
+            email: email
+        }
+    })
+
+    if(!user){
+        throw new ApiError(
+            404,
+            'user not found'
+        )
+    }
+
+    const resetToken = generateHexToken()
+    
+
+    await redisClient.set(
+        `password-reset:${resetToken}`,
+        user.id.toString(),
+        {
+            EX: 900
+        }
+    )
+    const resetLink = `https://localhost:5000/api/v1/reset-password?=${resetToken}`
+
+    try{
+        sendMail(
+            user.email,
+            "Reset your password",
+            `Click the link below to reset your password:
+            
+            ${resetLink}
+
+            The link expires in 15 minutes.
+            `
+        )
+    }catch(error){
+        await redisClient.del(
+            `password-reset:${resetLink}`
+        )
+
+        throw new ApiError(
+            500,
+            'Failes to send reset email.Please try again'
+        )
+    }
+}
+
+export const resetPassword = async(token: string, newPassword: string)=> {
+
+    const userId = await redisClient.get(
+        `password-reset:${token}`
+    )
+    if(!userId){
+        throw new ApiError(
+            400,
+            'invalid or expired reset token'
+        )
+    }
+
+    const user = prisma.user.findUnique({
+        where: {
+            id: userId
+        }
+    })
+
+    if(!user){
+        throw new ApiError(
+            404,
+            'user not found'
+        )
+    }
+
+    const hashPassword = bcrypt.hash(newPassword, 10)
+    await prisma.user.update({
+        where: {
+            id: userId
+        },
+        data: {
+            password: hashPassword
+        }
+    })
+
+    await redisClient.del(
+        `password-reset:${token}`
+    )
     return
 }
