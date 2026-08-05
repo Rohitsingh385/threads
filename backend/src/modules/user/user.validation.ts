@@ -27,5 +27,15 @@ export const loginSchema = z.object({
             .max(20)
     })
 })
+
+export const otpSchema = z.object({
+    body: z.object({
+        otp: z
+            .string()
+            .trim()
+            .min(6)
+            .max(6)
+    })
+})
 export type signupInput = z.infer<typeof signupSchema>["body"]
 export type loginInput = z.infer<typeof loginSchema>["body"]

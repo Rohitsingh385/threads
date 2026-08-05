@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../../utils/asyncHandler.js";
-import { signUpService, loginService, meService, refreshTokenService } from "./user.service.js"
+import { signUpService, loginService, meService, refreshTokenService, verifyOtp, resendOtp } from "./user.service.js"
 import { ApiError } from "../../utils/ApiError.js";
 export const signupController = asyncHandler(async (req: Request, res: Response) => {
 
@@ -90,5 +90,27 @@ export const logoutController = asyncHandler(async (req: Request, res: Response)
     return res.status(200).json({
         success: true,
         message: "user logged out"
+    })
+})
+
+export const verifyOtpController = asyncHandler(async (req: Request, res: Response) => {
+
+
+    const result = await verifyOtp(req.user?.userId, req.body.otp)
+
+    return res.status(200).json({
+        success: true,
+        message: 'email verified',
+        data: result
+    })
+})
+
+export const resendOtpController = asyncHandler(async (req: Request, res: Response) => {
+    const result = await resendOtp(req.user?.userId)
+
+    return res.status(200).json({
+        success: true,
+        message: 'Otp sent successfully',
+        data: result
     })
 })
