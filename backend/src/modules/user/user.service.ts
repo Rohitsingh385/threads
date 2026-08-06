@@ -287,7 +287,7 @@ export const forgotPassword = async(email: string)=> {
         )
     }catch(error){
         await redisClient.del(
-            `password-reset:${resetLink}`
+            `password-reset:${resetToken}`
         )
 
         throw new ApiError(
@@ -309,7 +309,7 @@ export const resetPassword = async(token: string, newPassword: string)=> {
         )
     }
 
-    const user = prisma.user.findUnique({
+    const user = await prisma.user.findUnique({
         where: {
             id: userId
         }
@@ -322,7 +322,7 @@ export const resetPassword = async(token: string, newPassword: string)=> {
         )
     }
 
-    const hashPassword = bcrypt.hash(newPassword, 10)
+    const hashPassword = await bcrypt.hash(newPassword, 10)
     await prisma.user.update({
         where: {
             id: userId

@@ -129,7 +129,7 @@ export const forgotPasswordController  = asyncHandler(async(req: Request, res: R
 export const resetPasswordController = asyncHandler(async(req: Request, res: Response)=> {
 
 
-    const result = await resetPassword(req.body.token, req.body.newPassword)
+    await resetPassword(req.body.token, req.body.newPassword)
 
     return res.status(200).json({
         success: true,
