@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../../utils/asyncHandler.js";
-import { signUpService, loginService, meService, refreshTokenService, verifyOtp, resendOtp , forgotPassword, resetPassword} from "./user.service.js"
+import { signUpService, loginService, meService, refreshTokenService, verifyOtp, resendOtp , forgotPassword, resetPassword,updateProfile, getDetails} from "./user.service.js"
 import { ApiError } from "../../utils/ApiError.js";
 export const signupController = asyncHandler(async (req: Request, res: Response) => {
 
@@ -38,16 +38,29 @@ export const meController = asyncHandler(async (req: Request, res: Response) => 
 
     return res.status(200).json({
         success: true,
-        message: `${req.user?.userId} details`,
+        message: `${result.username} details`,
         data: {
             username: result.username,
             email: result.email,
             role: result.role,
-            emailVerified: result.emailVerified
+            emailVerified: result.emailVerified,
+            bio: result.bio,
+            avatarUrl: result.avatarUrl,
+            avatarPublicId: result.avatarPublicId
         }
     })
 })
 
+export const getDetailsController = asyncHandler(async(req: Request, res: Response)=> {
+
+    const result = await getDetails(req.params.username)
+
+    return res.status(200).json({
+        success: true,
+        message: "user details",
+        data: result
+    })
+})
 export const refreshTokenController = asyncHandler(async (req: Request, res: Response) => {
     const refreshToken = req.cookies.refreshToken
     if (!refreshToken) {
@@ -134,5 +147,16 @@ export const resetPasswordController = asyncHandler(async(req: Request, res: Res
     return res.status(200).json({
         success: true,
         message: 'password reset',
+    })
+})
+
+export const updateProfileController = asyncHandler(async(req: Request, res: Response)=> {
+
+    const result = await updateProfile(req.user?.userId, {body: req.body, file: req.file})
+    
+    return res.status(200).json({
+        success: true,
+        message:"profile updated",
+        data: result
     })
 })

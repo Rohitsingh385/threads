@@ -25,6 +25,15 @@ const envSchema = z.object({
     EMAIL_APP_PASSWORD: z
         .string()
         .trim(),
+    CLOUDINARY_CLOUD_NAME: z
+        .string()
+        .trim(),
+    CLOUDINARY_API_KEY: z
+        .string()
+        .trim(),
+    CLOUDINARY_API_SECRET: z
+        .string()
+        .trim(),
 })
 
 export const env = envSchema.parse(process.env)

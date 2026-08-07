@@ -10,7 +10,7 @@ export const generateAccessToken = (payload: AuthPayload)=> {
         payload, 
         env.ACCESS_TOKEN,
         {
-            expiresIn: "15m"
+            expiresIn: "6h"
         })
 
 }

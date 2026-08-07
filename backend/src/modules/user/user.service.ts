@@ -1,4 +1,4 @@
-import { signupInput, loginInput } from "./user.validation.js";
+import { signupInput, loginInput, updateInputs } from "./user.validation.js";
 import { prisma } from "../../config/prisma.js"
 import { ApiError } from "../../utils/ApiError.js";
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../../utils/jwt.js";
@@ -7,6 +7,8 @@ import { generateOtp } from "../../utils/Otp.js";
 import { redisClient } from "../../config/redis.js";
 import { sendMail } from "../../utils/transporter.js";
 import { generateHexToken } from "../../utils/token.js";
+import { uploadToCloudinary, deleteToCloudinary } from "../../utils/Upload.js";
+import { UploadApiResponse } from "cloudinary";
 
 export const signUpService = async (input: signupInput) => {
 
@@ -134,10 +136,35 @@ export const meService = async (userId: string) => {
         username: user.username,
         email: user.email,
         role: user.role,
-        emailVerified: user.emailVerified
+        emailVerified: user.emailVerified,
+        bio: user.bio,
+        avatarUrl: user.avatarUrl,
+        avatarPublicId: user.avatarPublicId
     }
 }
+export const getDetails = async (username: string) => {
+    const user = await prisma.user.findUnique({
+        where: {
+            username: username
+        }
+    })
 
+    if (!user) {
+        throw new ApiError(
+            400,
+            'user doesnt not exists'
+        )
+    }
+    return {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        bio: user.bio,
+        avatarUrl: user.avatarUrl,
+        avatarPublicId: user.avatarPublicId
+    }
+}
 export const verifyOtp = async (userId: string, otp: string) => {
 
     const user = await prisma.user.findUnique({
@@ -237,7 +264,7 @@ export const resendOtp = async (userId: string) => {
             "Verify your email",
             `your OTP is ${otp}. It expires in 5 minutes.`
         )
-    }catch(error){
+    } catch (error) {
         await redisClient.del(`otp:${userId}`)
         await redisClient.del(`otp-cooldown:${userId}`)
         throw new ApiError(
@@ -248,14 +275,14 @@ export const resendOtp = async (userId: string) => {
     return
 }
 
-export const forgotPassword = async(email: string)=> {
+export const forgotPassword = async (email: string) => {
     const user = await prisma.user.findUnique({
         where: {
             email: email
         }
     })
 
-    if(!user){
+    if (!user) {
         throw new ApiError(
             404,
             'user not found'
@@ -263,7 +290,7 @@ export const forgotPassword = async(email: string)=> {
     }
 
     const resetToken = generateHexToken()
-    
+
 
     await redisClient.set(
         `password-reset:${resetToken}`,
@@ -274,7 +301,7 @@ export const forgotPassword = async(email: string)=> {
     )
     const resetLink = `https://localhost:5000/api/v1/reset-password?=${resetToken}`
 
-    try{
+    try {
         sendMail(
             user.email,
             "Reset your password",
@@ -285,7 +312,7 @@ export const forgotPassword = async(email: string)=> {
             The link expires in 15 minutes.
             `
         )
-    }catch(error){
+    } catch (error) {
         await redisClient.del(
             `password-reset:${resetToken}`
         )
@@ -297,12 +324,12 @@ export const forgotPassword = async(email: string)=> {
     }
 }
 
-export const resetPassword = async(token: string, newPassword: string)=> {
+export const resetPassword = async (token: string, newPassword: string) => {
 
     const userId = await redisClient.get(
         `password-reset:${token}`
     )
-    if(!userId){
+    if (!userId) {
         throw new ApiError(
             400,
             'invalid or expired reset token'
@@ -315,7 +342,7 @@ export const resetPassword = async(token: string, newPassword: string)=> {
         }
     })
 
-    if(!user){
+    if (!user) {
         throw new ApiError(
             404,
             'user not found'
@@ -336,4 +363,71 @@ export const resetPassword = async(token: string, newPassword: string)=> {
         `password-reset:${token}`
     )
     return
+}
+
+export const updateProfile = async (userId: string, data: updateInputs) => {
+    const user = await prisma.user.findUnique({
+        where: {
+            id: userId
+        }
+    })
+    if (!user) {
+        throw new ApiError(
+            404,
+            'user not found'
+        )
+    }
+    let updatedField = {}
+
+    if (data.body?.username !== undefined) {
+        updatedField = {
+            ...updatedField,
+            username: data.body.username
+        }
+    }
+    if (data.body?.bio !== undefined) {
+        updatedField = {
+            ...updatedField,
+            bio: data.body.bio
+        }
+    }
+
+    let result: UploadApiResponse | undefined;
+    if (data.file) {
+
+
+        const signature = data.file.buffer.subarray(0, 4).toString("hex")
+        const isJpeg = signature.startsWith("ffd8ff")
+        const isPng = signature === "89504e47"
+        if (!isJpeg && !isPng) {
+            throw new ApiError(
+                400,
+                "invalid file"
+            )
+        }
+
+        result = await uploadToCloudinary(data.file.buffer)
+        if (user.avatarPublicId) {
+            await deleteToCloudinary(user.avatarPublicId)
+        }
+        updatedField = {
+            ...updatedField,
+            avatarUrl: result.secure_url,
+            avatarPublicId: result.public_id
+        }
+
+    }
+
+    const updatedUser = await prisma.user.update({
+        where: {
+            id: userId
+        },
+        data: updatedField
+    })
+
+    return {
+        username: updatedUser.username,
+        bio: updatedUser.bio,
+        avatarUrl: updatedUser.avatarUrl
+    }
 }

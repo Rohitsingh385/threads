@@ -1,4 +1,4 @@
-import { z } from "zod"
+import { coerce, TypeOf, z } from "zod"
 
 export const signupSchema = z.object({
     body: z.object({
@@ -57,5 +57,37 @@ export const resetPasswordSchema = z.object({
             .min(8)
     })
 })
+
+export const updateProfileSchema = z.object({
+    body: z.object({
+        username: z
+            .string()
+            .min(1)
+            .max(50)
+            .trim()
+            .optional(),
+        bio: z
+            .string()
+            .min(1)
+            .optional(),
+    }),
+    file: z.object({
+        originalname: z.string(),
+        mimetype: z.string(),
+        size: z.coerce.number(),
+        buffer: z.instanceof(Buffer)
+    }).optional()
+})
+
+export const getDetailsSchema = z.object({
+    params: z.object({
+        username: z   
+            .string()
+            .trim()
+            .min(1)
+            .max(50)
+    })
+})
+export type updateInputs = z.infer<typeof updateProfileSchema>
 export type signupInput = z.infer<typeof signupSchema>["body"]
 export type loginInput = z.infer<typeof loginSchema>["body"]
