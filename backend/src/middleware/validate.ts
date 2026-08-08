@@ -4,6 +4,7 @@ import { ApiError } from "../utils/ApiError.js"
 
 export const validate = (schema: ZodObject) => {
     return (req: Request, res: Response, next: NextFunction) => {
+        
         const result = schema.safeParse({
             body: req.body,
             params: req.params,

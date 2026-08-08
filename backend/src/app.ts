@@ -1,6 +1,7 @@
 import express from "express"
 import { errorHandler } from "./middleware/error.middleware.js"
 import userRoute from "./modules/user/user.route.js"
+import userThread from "./modules/thread/thread.route.js"
 import cookieParser from "cookie-parser"
 const app = express()
 
@@ -17,7 +18,7 @@ app.get('/health', (req, res) => {
 
 app.use('/api/v1/user', userRoute)
 
-
+app.use('/api/v1/thread', userThread)
 
 app.use((req, res) => {
     res.status(404).json({

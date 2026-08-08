@@ -4,7 +4,7 @@ export const signupSchema = z.object({
     body: z.object({
         username: z
             .string()
-            .min(1)
+            .min(3)
             .max(50)
             .trim(),
         email: z
