@@ -39,4 +39,6 @@ model Thread {
   author          User   @relation(fields: [authorId], references: [id])
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  @@index([authorId, createdAt])
 }

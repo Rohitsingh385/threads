@@ -25,7 +25,7 @@ export const getThreadByIdController = asyncHandler(async (req: Request, res: Re
 })
 export const getThreadByUsernameController = asyncHandler(async (req: Request, res: Response) => {
 
-    const result = await getThreadByUsername(req.params)
+    const result = await getThreadByUsername(req.params.username,req.query.limit, req.query.cursor)
 
     return res.status(200).json({
         success: true,

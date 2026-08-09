@@ -1,6 +1,6 @@
 import { prisma } from "../../config/prisma.js"
 import { ApiError } from "../../utils/ApiError.js"
-import { threadInput, threadIdinput, usernameInput, updateThreadInput } from "./thread.validation.js"
+import type { threadInput, threadIdinput, getUserInput } from "./thread.validation.js"
 
 export const createThread = async (userId: string, threadData: threadInput) => {
 
@@ -51,16 +51,35 @@ export const getThreadById = async (threadData: threadIdinput) => {
     return thread
 }
 
-export const getThreadByUsername = async (userData: usernameInput) => {
+export const getThreadByUsername = async (username: string, limit: number, cursor: string) => {
 
-    const user = await prisma.thread.findMany({
+    const threads = await prisma.thread.findMany({
         where: {
             author: {
-                username: userData.username
+                username: username
             }
+        },
+        take: limit + 1,
+        ...(cursor && {
+            cursor: {
+                id: cursor
+            },
+            skip: 1
+        }),
+        orderBy: {
+            createdAt: 'desc',
         }
+
     })
-    return user
+
+    const hasNextPage =  threads.length > limit 
+    const data = hasNextPage ? threads.slice(0, limit) : threads
+    const nextCursor = hasNextPage ? data[data.length -1].id : null
+    return {
+        data,
+        nextCursor,
+        hasNextPage
+    }
 }
 
 export const updateThread = async (userId: string, threadId: string, content: string) => {
@@ -99,7 +118,7 @@ export const updateThread = async (userId: string, threadId: string, content: st
 }
 
 export const deleteThread = async (userId: string, theradId: threadIdinput) => {
-    const thread = await prisma.thread.delete({
+    const thread = await prisma.thread.deleteMany({
         where: {
             id: theradId.id,
             authorId: userId

@@ -17,12 +17,25 @@ export const threadIdSchema = z.object({
             .uuid()
     })
 })
-export const usernameSchema = z.object({
+export const userThreadSchema = z.object({
     params: z.object({
         username: z
             .string()
             .min(3)
             .max(50)
+    }),
+    query: z.object({
+        limit: z
+            .coerce
+            .number()
+            .int()
+            .min(1)
+            .max(10)
+            .default(10),
+        cursor: z
+            .string()
+            .uuid()
+            .optional()
     })
 })
 
@@ -40,7 +53,8 @@ export const updateThreadSchema = z.object({
             .max(200)
     })
 })
+
 export type threadInput = z.infer<typeof threadSchema>["body"]
 export type updateThreadInput = z.infer<typeof updateThreadSchema>
 export type threadIdinput = z.infer<typeof threadIdSchema>["params"]
-export type usernameInput = z.infer<typeof usernameSchema>["params"]
+export type getUserInput = z.infer<typeof userThreadSchema>["params"]
