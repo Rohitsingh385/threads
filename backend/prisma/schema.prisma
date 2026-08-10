@@ -28,7 +28,7 @@ model User {
   emailVerified  Boolean  @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime  @updatedAt
-
+  likes          Like[]
   threads        Thread[]
 }
 
@@ -37,8 +37,20 @@ model Thread {
   content         String 
   authorId        String
   author          User   @relation(fields: [authorId], references: [id])
+  likesCount      Int @default(0)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-
+  likes           Like[]
   @@index([authorId, createdAt])
+}
+model Like {
+  id             String @id @default(uuid())
+  threadId       String
+  thread         Thread @relation(fields: [threadId], references: [id])
+  userId         String
+  user           User @relation(fields: [userId], references: [id])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([userId, threadId])
 }
