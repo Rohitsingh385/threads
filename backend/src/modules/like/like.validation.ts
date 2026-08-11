@@ -7,11 +7,3 @@ export const likeSchema = z.object({
             .uuid()
     })
 })
-
-export const unLikeSchema = z.object({
-    params: z.object({
-        threadId: z
-            .string()
-            .uuid()
-    })
-})

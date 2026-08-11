@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../../utils/asyncHandler.js";
-import { createThread , getThreadById, getThreadByUsername, updateThread, deleteThread} from "./thread.service.js"
+import { createThread, getThreadById, getThreadByUsername, updateThread, deleteThread } from "./thread.service.js"
 
 export const createThreadController = asyncHandler(async (req: Request, res: Response) => {
 
@@ -15,7 +15,7 @@ export const createThreadController = asyncHandler(async (req: Request, res: Res
 export const getThreadByIdController = asyncHandler(async (req: Request, res: Response) => {
 
     // console.log(req.params.id)
-    const result = await getThreadById(req.params)
+    const result = await getThreadById(req.params, req.user?.userId)
 
     return res.status(200).json({
         success: true,
@@ -25,7 +25,7 @@ export const getThreadByIdController = asyncHandler(async (req: Request, res: Re
 })
 export const getThreadByUsernameController = asyncHandler(async (req: Request, res: Response) => {
 
-    const result = await getThreadByUsername(req.params.username,req.query.limit, req.query.cursor)
+    const result = await getThreadByUsername(req.params.username, req.query.limit, req.query.cursor)
 
     return res.status(200).json({
         success: true,
@@ -36,7 +36,7 @@ export const getThreadByUsernameController = asyncHandler(async (req: Request, r
 
 export const updateThreadController = asyncHandler(async (req: Request, res: Response) => {
 
-    const result = await updateThread(req.user?.userId , req.params.id, req.body.content)
+    const result = await updateThread(req.user?.userId, req.params.id, req.body.content)
 
     return res.status(200).json({
         success: true,
