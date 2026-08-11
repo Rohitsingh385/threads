@@ -25,7 +25,7 @@ export const createThread = async (userId: string, threadData: threadInput) => {
     return thread
 }
 
-export const getThreadById = async (threadData: threadIdinput) => {
+export const getThreadById = async (threadData: threadIdinput, userId?: string) => {
 
     const thread = await prisma.thread.findUnique({
         where: {
@@ -48,7 +48,24 @@ export const getThreadById = async (threadData: threadIdinput) => {
             'post not found'
         )
     }
-    return thread
+    const isLiked = await prisma.like.findFirst({
+        where: {
+            threadId: threadData.id,
+            userId: userId
+        }
+    })
+    if (isLiked) {
+        return {
+            thread,
+            isLiked: true
+        }
+    }
+
+    return {
+        thread,
+        isLiked: false
+    }
+
 }
 
 export const getThreadByUsername = async (username: string, limit: number, cursor: string) => {
@@ -72,9 +89,9 @@ export const getThreadByUsername = async (username: string, limit: number, curso
 
     })
 
-    const hasNextPage =  threads.length > limit 
+    const hasNextPage = threads.length > limit
     const data = hasNextPage ? threads.slice(0, limit) : threads
-    const nextCursor = hasNextPage ? data[data.length -1].id : null
+    const nextCursor = hasNextPage ? data[data.length - 1].id : null
     return {
         data,
         nextCursor,
