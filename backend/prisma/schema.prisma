@@ -30,6 +30,7 @@ model User {
   updatedAt      DateTime  @updatedAt
   likes          Like[]
   threads        Thread[]
+  comments       Comment[]
 }
 
 model Thread {
@@ -38,9 +39,11 @@ model Thread {
   authorId        String
   author          User   @relation(fields: [authorId], references: [id])
   likesCount      Int @default(0)
+  commentsCount   Int @default(0)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   likes           Like[]
+  comments        Comment[]
   @@index([authorId, createdAt])
 }
 model Like {
@@ -53,4 +56,24 @@ model Like {
   updatedAt      DateTime @updatedAt
 
   @@unique([userId, threadId])
+}
+model Comment {
+  id            String @id @default(uuid())
+  content       String
+  threadId      String
+  userId        String
+  parentId      String?
+  deletedAt     DateTime?
+
+  thread        Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  user          User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  parent        Comment? @relation("CommentReplies",fields: [parentId], references: [id])
+  replies       Comment[] @relation("CommentReplies")
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([threadId, parentId, createdAt])
+  @@index([parentId, createdAt])
 }
