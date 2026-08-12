@@ -5,6 +5,6 @@ import { authMiddleware } from "../../middleware/auth.middleware.js"
 import { likeController } from "./like.controller.js"
 const router = Router()
 
-router.post('/:threadId/like', authMiddleware, validate(likeSchema), likeController)
+router.post('/threads/:threadId/likes', authMiddleware, validate(likeSchema), likeController)
 
 export default router

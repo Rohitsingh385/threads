@@ -1,23 +1,45 @@
+import { AnyZodObject, ZodError } from "zod"
 import { Request, Response, NextFunction } from "express"
-import { ZodObject } from "zod"
 import { ApiError } from "../utils/ApiError.js"
 
-export const validate = (schema: ZodObject) => {
-    return (req: Request, res: Response, next: NextFunction) => {
-        
-        const result = schema.safeParse({
+export const validate = (schema: AnyZodObject) => (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const parsed = schema.parse({
             body: req.body,
             params: req.params,
-            query: req.query,
-            file: req.file
+            query: req.query
         })
-        if (!result.success) {
-            throw new ApiError(
-                400,
-                result.error.message
+
+        if (parsed.body) req.body = parsed.body
+
+        if (parsed.params) {
+            Object.defineProperty(req, 'params', {
+                value: { ...req.params, ...parsed.params },
+                writable: true,
+                configurable: true,
+                enumerable: true
+            })
+        }
+
+        if (parsed.query) {
+            Object.defineProperty(req, 'query', {
+                value: { ...req.query, ...parsed.query },
+                writable: true,
+                configurable: true,
+                enumerable: true
+            })
+        }
+
+        next()
+    } catch (error) {
+        if (error instanceof ZodError) {
+            return next(
+                new ApiError(
+                    400,
+                    error.issues[0]?.message || "Validation Error"
+                )
             )
         }
-        req.body = result.data.body
-        next()
+        next(error)
     }
-} 
+}

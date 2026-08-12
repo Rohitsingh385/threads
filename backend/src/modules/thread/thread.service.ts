@@ -68,7 +68,7 @@ export const getThreadById = async (threadData: threadIdinput, userId?: string) 
 
 }
 
-export const getThreadByUsername = async (username: string, limit: number, cursor: string) => {
+export const getThreadByUsername = async (username: string, limit: number, cursor?: string) => {
 
     const threads = await prisma.thread.findMany({
         where: {
