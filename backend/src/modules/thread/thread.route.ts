@@ -4,13 +4,19 @@ import { threadSchema, threadIdSchema, userThreadSchema, updateThreadSchema } fr
 import { authMiddleware } from "../../middleware/auth.middleware.js"
 import { optionalAuthMiddleware } from "../../middleware/optionalAuthMiddleware.js"
 import {createThreadController, deleteThreadController, getThreadByIdController, getThreadByUsernameController, updateThreadController} from "./thread.controller.js"
+import commentRoute from "../comments/comment.route.js"
+import likeRoute from "../like/like.route.js"
 const router = Router()
 
 router.post('/', authMiddleware ,validate(threadSchema), createThreadController )
-router.get('/:id', optionalAuthMiddleware, validate(threadIdSchema), getThreadByIdController)
-
 router.get('/user/:username', validate(userThreadSchema), getThreadByUsernameController)
 
+router.use('/:threadId/comments', commentRoute)
+
+router.use('/:threadId/likes', likeRoute)
+
+router.get('/:id', optionalAuthMiddleware, validate(threadIdSchema), getThreadByIdController)
 router.patch('/:id',authMiddleware, validate(updateThreadSchema), updateThreadController)
 router.delete('/:id',authMiddleware, validate(threadIdSchema), deleteThreadController)
+
 export default router

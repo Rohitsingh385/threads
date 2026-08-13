@@ -75,3 +75,70 @@ export const createComment = async (userId: string, threadId: string, content: s
     ])
     return comment
 }
+
+export const getComment = async (threadId: string, parentId: string, limit: number, cursor?: string) => {
+
+    const comments = await prisma.comment.findMany({
+        where: {
+            threadId,
+            parentId: parentId ? parentId : null,
+        },
+
+        include: {
+            user: {
+                select: {
+                    username: true,
+                    avatarUrl: true,
+                }
+            }
+        },
+
+        take: limit + 1,
+
+        ...(cursor && {
+            cursor: {
+                id: cursor,
+            },
+            skip: 1
+        }),
+
+        orderBy: {
+            createdAt: 'desc'
+        }
+    })
+    const hasNextPage = comments.length > limit
+
+    const data = hasNextPage ? comments.slice(0, limit) : comments
+
+    const nextCursor = hasNextPage ? data[data.length - 1].id : null
+
+    return {
+        data,
+        nextCursor
+    }
+
+
+}
+
+export const updateComment = async(userId: string, commentId: string, content: string) => {
+    const comment = await prisma.comment.update({
+        where: {
+            id: commentId,
+            userId: userId
+        },
+        data: {
+            content
+        }
+        
+    })
+
+    if(!comment){
+        throw new ApiError(
+            404,
+            'comment not found'
+        )
+    }
+    return {
+        comment
+    }
+}

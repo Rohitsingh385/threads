@@ -20,11 +20,11 @@ app.get('/health', (req, res) => {
 
 app.use('/api/v1/users', userRoute)
 
-app.use('/api/v1/threads', userThread)
-
 app.use('/api/v1', like)
 
 app.use('/api/v1', comment)
+
+app.use('/api/v1/threads', userThread)
 
 app.use((req, res) => {
     res.status(404).json({

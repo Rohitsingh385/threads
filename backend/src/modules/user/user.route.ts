@@ -16,15 +16,21 @@ const router = Router()
 
 router.post('/signup', validate(signupSchema), signupController)
 router.post('/login', validate(loginSchema), loginController)
+
 router.post('/refresh', refreshTokenController)
+
 router.get('/me', authMiddleware, meController)
-router.get('/:username', validate(getDetailsSchema), getDetailsController)
 router.get('/logout', authMiddleware, logoutController)
+
 router.post('/verify-otp', validate(otpSchema), authMiddleware, verifyOtpController)
 router.post('/resend-otp', authMiddleware, resendOtpController)
+
 router.post('/forgot-password', validate(forgotPasswordSchema), forgotPasswordController)
 router.post('/reset-password', validate(resetPasswordSchema), resetPasswordController)
 
 // user profile
 router.patch('/profile', authMiddleware, upload.single('avatarUrl'), validate(updateProfileSchema), updateProfileController)
+
+router.get('/:username', validate(getDetailsSchema), getDetailsController)
+
 export default router

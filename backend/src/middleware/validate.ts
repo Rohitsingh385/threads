@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from "express"
 import { ApiError } from "../utils/ApiError.js"
 
 export const validate = (schema: AnyZodObject) => (req: Request, res: Response, next: NextFunction) => {
+
     try {
         const parsed = schema.parse({
             body: req.body,
@@ -20,7 +21,6 @@ export const validate = (schema: AnyZodObject) => (req: Request, res: Response, 
                 enumerable: true
             })
         }
-
         if (parsed.query) {
             Object.defineProperty(req, 'query', {
                 value: { ...req.query, ...parsed.query },
@@ -29,7 +29,6 @@ export const validate = (schema: AnyZodObject) => (req: Request, res: Response, 
                 enumerable: true
             })
         }
-
         next()
     } catch (error) {
         if (error instanceof ZodError) {
