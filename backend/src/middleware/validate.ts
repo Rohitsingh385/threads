@@ -3,14 +3,14 @@ import { Request, Response, NextFunction } from "express"
 import { ApiError } from "../utils/ApiError.js"
 
 export const validate = (schema: AnyZodObject) => (req: Request, res: Response, next: NextFunction) => {
-
+    console.log(req.params)
     try {
         const parsed = schema.parse({
             body: req.body,
             params: req.params,
             query: req.query
         })
-
+        console.log(parsed)
         if (parsed.body) req.body = parsed.body
 
         if (parsed.params) {

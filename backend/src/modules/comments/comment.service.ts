@@ -120,7 +120,7 @@ export const getComment = async (threadId: string, parentId: string, limit: numb
 
 }
 
-export const updateComment = async(userId: string, commentId: string, content: string) => {
+export const updateComment = async (userId: string, commentId: string, content: string) => {
     const comment = await prisma.comment.update({
         where: {
             id: commentId,
@@ -129,10 +129,10 @@ export const updateComment = async(userId: string, commentId: string, content: s
         data: {
             content
         }
-        
+
     })
 
-    if(!comment){
+    if (!comment) {
         throw new ApiError(
             404,
             'comment not found'
@@ -141,4 +141,52 @@ export const updateComment = async(userId: string, commentId: string, content: s
     return {
         comment
     }
+}
+
+export const deleteComment = async (userId: string, commentId: string) => {
+    const checkCommentExists = await prisma.comment.findFirst({
+        where: {
+            id: commentId,
+            userId: userId
+        }
+    })
+    if (!checkCommentExists) {
+        throw new ApiError(
+            404,
+            'comment not found'
+        )
+    }
+
+    if (checkCommentExists.deletedAt !== null) {
+        throw new ApiError(
+            400,
+            'comment already deleted'
+        )
+    }
+
+    return prisma.$transaction(async (tx) => {
+
+        const comment = await tx.comment.update({
+            where: {
+                id: commentId
+            },
+            data: {
+                deletedAt: new Date()
+            }
+        })
+        const thread = await tx.thread.update({
+            where: {
+                id: checkCommentExists.threadId
+            },
+            data: {
+                commentsCount: {
+                    decrement: 1
+                }
+            }
+        })
+        return {
+            comment,
+            commentsCount: thread.commentsCount
+        }
+    })
 }

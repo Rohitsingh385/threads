@@ -1,6 +1,6 @@
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import type { Request, Response } from "express";
-import { createComment, getComment, updateComment } from "./comment.service.js"
+import { createComment, getComment, updateComment, deleteComment } from "./comment.service.js"
 
 export const createCommentController = asyncHandler(async (req: Request, res: Response) => {
 
@@ -31,5 +31,15 @@ export const updateCommentController = asyncHandler(async (req: Request, res: Re
             message: 'comment udpated',
             data: result.comment
         }
+    })
+})
+
+export const deleteCommentController = asyncHandler(async(req: Request, res: Response) => {
+    const result = await deleteComment(req.user?.userId, req.params.commentId)
+
+    return res.status(200).json({
+        success: true,
+        message: 'comment deleted',
+        data: result
     })
 })

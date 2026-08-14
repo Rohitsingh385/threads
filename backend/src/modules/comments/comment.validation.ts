@@ -61,3 +61,11 @@ export const updateCommentSchema = z.object({
     }),
 
 })
+
+export const deleteCommentSchema = z.object({
+    params: z.object({
+        commentId: z
+            .string()
+            .uuid()
+    })
+})
