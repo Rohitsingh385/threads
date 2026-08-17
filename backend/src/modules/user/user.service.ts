@@ -142,19 +142,26 @@ export const meService = async (userId: string) => {
         avatarPublicId: user.avatarPublicId
     }
 }
-export const getDetails = async (username: string) => {
+export const getDetails = async (username: string, userId: string) => {
     const user = await prisma.user.findUnique({
         where: {
             username: username
         }
     })
-
     if (!user) {
         throw new ApiError(
             400,
             'user doesnt not exists'
         )
     }
+    const isFollowing = await prisma.follow.findUnique({
+        where: {
+            followingId_followerId: {
+                followerId: userId!,
+                followingId: user.id
+            }
+        }
+    })
     return {
         id: user.id,
         username: user.username,
@@ -162,7 +169,8 @@ export const getDetails = async (username: string) => {
         role: user.role,
         bio: user.bio,
         avatarUrl: user.avatarUrl,
-        avatarPublicId: user.avatarPublicId
+        avatarPublicId: user.avatarPublicId,
+        isFollowing: !!isFollowing
     }
 }
 export const verifyOtp = async (userId: string, otp: string) => {

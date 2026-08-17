@@ -53,7 +53,7 @@ export const meController = asyncHandler(async (req: Request, res: Response) => 
 
 export const getDetailsController = asyncHandler(async(req: Request, res: Response)=> {
 
-    const result = await getDetails(req.params.username)
+    const result = await getDetails(req.params.username, req.user?.userId)
 
     return res.status(200).json({
         success: true,

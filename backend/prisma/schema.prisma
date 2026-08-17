@@ -6,6 +6,7 @@
 generator client {
   provider = "prisma-client-js"
 }
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -25,55 +26,79 @@ model User {
   bio            String?
   avatarUrl      String?
   avatarPublicId String?
-  emailVerified  Boolean  @default(false)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime  @updatedAt
-  likes          Like[]
-  threads        Thread[]
-  comments       Comment[]
+
+  followerCount Int       @default(0)
+  followingCount Int       @default(0)
+  emailVerified Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  likes         Like[]
+  threads       Thread[]
+  comments      Comment[]
+  followers     Follow[]  @relation("UserFollowers")
+  following     Follow[]  @relation("UserFollowing")
 }
 
 model Thread {
-  id              String @id @default(uuid())
-  content         String 
-  authorId        String
-  author          User   @relation(fields: [authorId], references: [id])
-  likesCount      Int @default(0)
-  commentsCount   Int @default(0)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  likes           Like[]
-  comments        Comment[]
+  id            String    @id @default(uuid())
+  content       String
+  authorId      String
+  author        User      @relation(fields: [authorId], references: [id])
+  likesCount    Int       @default(0)
+  commentsCount Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  likes         Like[]
+  comments      Comment[]
+
   @@index([authorId, createdAt])
 }
+
 model Like {
-  id             String @id @default(uuid())
-  threadId       String
-  thread         Thread @relation(fields: [threadId], references: [id])
-  userId         String
-  user           User @relation(fields: [userId], references: [id])
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id        String   @id @default(uuid())
+  threadId  String
+  thread    Thread   @relation(fields: [threadId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([userId, threadId])
 }
+
 model Comment {
-  id            String @id @default(uuid())
-  content       String
-  threadId      String
-  userId        String
-  parentId      String?
-  deletedAt     DateTime?
+  id        String    @id @default(uuid())
+  content   String
+  threadId  String
+  userId    String
+  parentId  String?
+  deletedAt DateTime?
 
-  thread        Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
-  user          User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  parent        Comment? @relation("CommentReplies",fields: [parentId], references: [id])
-  replies       Comment[] @relation("CommentReplies")
+  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies Comment[] @relation("CommentReplies")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([threadId, parentId, createdAt])
   @@index([parentId, createdAt])
+}
+
+model Follow {
+  id          String @id @default(uuid())
+  followingId String
+  followerId  String
+
+  followers  User @relation("UserFollowing", fields: [followerId], references: [id])
+  followings User @relation("UserFollowers", fields: [followingId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([followingId, followerId])
+  @@index([followerId])
+  @@index([followingId])
 }

@@ -4,6 +4,7 @@ import userRoute from "./modules/user/user.route.js"
 import userThread from "./modules/thread/thread.route.js"
 import like from "./modules/like/like.route.js"
 import comment from "./modules/comments/comment.route.js"
+import follow from "./modules/follow/follow.route.js"
 import cookieParser from "cookie-parser"
 const app = express()
 
@@ -19,6 +20,8 @@ app.get('/health', (req, res) => {
 })
 
 app.use('/api/v1/users', userRoute)
+
+app.use('/api/v1', follow)
 
 app.use('/api/v1', like)
 

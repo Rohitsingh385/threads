@@ -4,6 +4,7 @@ import { signupSchema, loginSchema, otpSchema, forgotPasswordSchema, resetPasswo
 import { signupController, loginController, meController, logoutController, refreshTokenController, verifyOtpController, resendOtpController, forgotPasswordController, resetPasswordController, updateProfileController, getDetailsController } from "./user.controller.js"
 import { authMiddleware } from "../../middleware/auth.middleware.js"
 import multer from "multer"
+import { optionalAuthMiddleware } from "../../middleware/optionalAuthMiddleware.js"
 
 const storage = multer.memoryStorage()
 export const upload = multer({
@@ -31,6 +32,6 @@ router.post('/reset-password', validate(resetPasswordSchema), resetPasswordContr
 // user profile
 router.patch('/profile', authMiddleware, upload.single('avatarUrl'), validate(updateProfileSchema), updateProfileController)
 
-router.get('/:username', validate(getDetailsSchema), getDetailsController)
+router.get('/:username',optionalAuthMiddleware, validate(getDetailsSchema), getDetailsController)
 
 export default router
