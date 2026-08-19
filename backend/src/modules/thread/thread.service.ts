@@ -141,7 +141,7 @@ export const deleteThread = async (userId: string, theradId: threadIdinput) => {
             authorId: userId
         }
     })
-    if (!deleteThread) {
+    if (!thread) {
         throw new ApiError(
             403,
             'Forbidden'

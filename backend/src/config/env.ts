@@ -7,9 +7,6 @@ const envSchema = z.object({
         .coerce
         .number()
         .int(),
-    MONGO_URI: z
-        .string()
-        .trim(),
     ACCESS_TOKEN: z
         .string()
         .trim(),
