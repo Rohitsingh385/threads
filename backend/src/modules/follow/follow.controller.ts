@@ -14,7 +14,7 @@ export const followController = asyncHandler(async (req: Request, res: Response)
 })
 
 export const followingCountController = asyncHandler(async (req: Request, res: Response) => {
-    const result = await getFollowing(req.params.username, req.user?.userId)
+    const result = await getFollowing(req.params.username)
 
     return res.status(200).json({
         success: true,
