@@ -7,6 +7,7 @@ import comment from "./modules/comments/comment.route.js"
 import follow from "./modules/follow/follow.route.js"
 import feed from "./modules/feed/feed.route.js"
 import search from "./modules/search/search.route.js"
+import bookmark from "./modules/bookmarks/bookmark.route.js"
 import cookieParser from "cookie-parser"
 const app = express()
 
@@ -22,6 +23,8 @@ app.get('/health', (req, res) => {
 })
 
 app.use('/api/v1/users', userRoute)
+
+app.use('/api/v1', bookmark)
 
 app.use('/api/v1', search)
 

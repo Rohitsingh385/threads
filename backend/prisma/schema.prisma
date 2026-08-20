@@ -37,6 +37,7 @@ model User {
   comments      Comment[]
   followers     Follow[]  @relation("UserFollowers")
   following     Follow[]  @relation("UserFollowing")
+  bookmarks     Bookmark[]
 }
 
 model Thread {
@@ -50,6 +51,7 @@ model Thread {
   updatedAt     DateTime  @updatedAt
   likes         Like[]
   comments      Comment[]
+  bookmarks     Bookmark[]
 
   @@index([authorId, createdAt])
 }
@@ -101,4 +103,19 @@ model Follow {
   @@unique([followingId, followerId])
   @@index([followerId])
   @@index([followingId])
+}
+model Bookmark {
+  id        String @id @default(uuid())
+  userId    String 
+  threadId  String
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  thread    Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  
+  @@unique([userId, threadId])
+  @@index([userId, createdAt])
+  @@index([threadId])
+
 }
