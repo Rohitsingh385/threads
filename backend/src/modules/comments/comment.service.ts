@@ -1,5 +1,7 @@
+import { NotificationType } from "@prisma/client"
 import { prisma } from "../../config/prisma.js"
 import { ApiError } from "../../utils/ApiError.js"
+import { createNotification } from "../notification/notification.service.js"
 
 
 export const createComment = async (userId: string, threadId: string, content: string, parentCommentId?: string) => {
@@ -30,16 +32,16 @@ export const createComment = async (userId: string, threadId: string, content: s
                 'comment not found'
             )
         }
-        const [comment] = await prisma.$transaction([
-            prisma.comment.create({
+        const result = await prisma.$transaction(async (tx) => {
+            const comment = await tx.comment.create({
                 data: {
                     content,
                     threadId: threadId,
                     parentId: parentCommentId,
                     userId: userId
                 }
-            }),
-            prisma.thread.update({
+            })
+            const updateCommentCount = await tx.thread.update({
                 where: {
                     id: threadId
                 },
@@ -49,20 +51,29 @@ export const createComment = async (userId: string, threadId: string, content: s
                     }
                 }
             })
-        ])
-        return comment
+            if (checkExists.userId !== userId) {
+                await createNotification(tx, { recipientId: checkExists.userId, actorId: userId, type: NotificationType.COMMENT, threadId: threadId, commentId: comment.id })
+            }
+            return {
+                comment,
+                updateCommentCount
+            }
+        })
+        return {
+            result
+        }
     }
 
-    // comment
-    const [comment] = await prisma.$transaction([
-        prisma.comment.create({
+    const result = await prisma.$transaction(async (tx) => {
+
+        const comment = await prisma.comment.create({
             data: {
                 content,
                 threadId: threadId,
                 userId: userId
             }
-        }),
-        prisma.thread.update({
+        })
+        const updateCommentCount = await prisma.thread.update({
             where: {
                 id: threadId
             },
@@ -72,8 +83,16 @@ export const createComment = async (userId: string, threadId: string, content: s
                 }
             }
         })
-    ])
-    return comment
+
+        if (checkExists.authorId !== userId) {
+            await createNotification(tx, { recipientId: updateCommentCount.authorId, actorId: userId, type: NotificationType.COMMENT, threadId: threadId, commentId: comment.id })
+        }
+        return {
+            comment,
+            updateCommentCount
+        }
+    })
+    return result
 }
 
 export const getComment = async (threadId: string, parentId: string, limit: number, cursor?: string) => {

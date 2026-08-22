@@ -1,6 +1,8 @@
 
+import { NotificationType } from "@prisma/client"
 import { prisma } from "../../config/prisma.js"
 import { ApiError } from "../../utils/ApiError.js"
+import { createNotification } from "../notification/notification.service.js"
 
 export const followService = async (userId: string, username: string) => {
 
@@ -66,14 +68,14 @@ export const followService = async (userId: string, username: string) => {
         return unfollow
     }
 
-    const [follow] = await prisma.$transaction([
-        prisma.follow.create({
+    const follow = await prisma.$transaction(async (tx) => {
+        const follow = await tx.follow.create({
             data: {
                 followerId: userId,
                 followingId: checkUserExists.id
             }
-        }),
-        prisma.user.update({
+        })
+        const followingCount = await tx.user.update({
             where: {
                 id: userId
             },
@@ -82,8 +84,8 @@ export const followService = async (userId: string, username: string) => {
                     increment: 1
                 }
             }
-        }),
-        prisma.user.update({
+        })
+        const followerCount = await tx.user.update({
             where: {
                 id: checkUserExists.id
             },
@@ -93,7 +95,13 @@ export const followService = async (userId: string, username: string) => {
                 }
             }
         })
-    ])
+        await createNotification(tx, { recipientId: checkUserExists.id, actorId: userId, type: NotificationType.FOLLOW })
+        return {
+            follow,
+            followingCount,
+            followerCount
+        }
+    })
     return follow
 }
 

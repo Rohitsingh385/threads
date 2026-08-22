@@ -1,5 +1,7 @@
+import { NotificationType } from "@prisma/client"
 import { prisma } from "../../config/prisma.js"
 import { ApiError } from "../../utils/ApiError.js"
+import { createNotification } from "../notification/notification.service.js"
 
 
 
@@ -11,35 +13,37 @@ export const likeService = async (userId: string, threadId: string) => {
         }
     })
     if (!checkIsLiked) {
-        try {
-            const [like, thread] = await prisma.$transaction([
-                prisma.like.create({
-                    data: {
-                        userId: userId,
-                        threadId: threadId
+        const result = await prisma.$transaction(async (tx) => {
+            const like = await tx.like.create({
+                data: {
+                    userId: userId,
+                    threadId: threadId
+                }
+            })
+            const thread = await tx.thread.update({
+                where: {
+                    id: threadId
+                },
+                data: {
+                    likesCount: {
+                        increment: 1
                     }
-                }),
-                prisma.thread.update({
-                    where: {
-                        id: threadId
-                    },
-                    data: {
-                        likesCount: {
-                            increment: 1
-                        }
-                    }
-                })
-            ])
-            
-            return {
-                liked: true,
-                likesCount: thread.likesCount
+                }
+            })
+
+            if (thread.authorId !== userId) {
+                await createNotification(tx, { recipientId: thread.authorId, actorId: userId, type: NotificationType.LIKE, threadId })
             }
-        } catch (error) {
-            throw new ApiError(
-                409,
-                'Thread already liked'
-            )
+
+            return {
+                like,
+                thread
+            }
+
+        })
+        return {
+            liked: true,
+            likesCount: result.thread.likesCount
         }
     }
     return prisma.$transaction(async (tx) => {

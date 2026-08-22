@@ -38,6 +38,8 @@ model User {
   followers     Follow[]  @relation("UserFollowers")
   following     Follow[]  @relation("UserFollowing")
   bookmarks     Bookmark[]
+  notificationReceived Notification[] @relation("NotificationRecipient")
+  notificationSent     Notification[] @relation("NotificationActor")
 }
 
 model Thread {
@@ -52,7 +54,7 @@ model Thread {
   likes         Like[]
   comments      Comment[]
   bookmarks     Bookmark[]
-
+  notifications Notification[]
   @@index([authorId, createdAt])
 }
 
@@ -85,6 +87,8 @@ model Comment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  notifications Notification[]
+
   @@index([threadId, parentId, createdAt])
   @@index([parentId, createdAt])
 }
@@ -104,6 +108,7 @@ model Follow {
   @@index([followerId])
   @@index([followingId])
 }
+
 model Bookmark {
   id        String @id @default(uuid())
   userId    String 
@@ -118,4 +123,30 @@ model Bookmark {
   @@index([userId, createdAt])
   @@index([threadId])
 
+}
+
+enum NotificationType {
+  LIKE
+  FOLLOW
+  COMMENT
+}
+model Notification {
+  id                    String @id @default(uuid())
+  recipientId           String 
+  actorId               String 
+  NotificationType      NotificationType
+
+  threadId              String?
+  commentId             String?
+
+  recipient     User    @relation("NotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  actor         User    @relation("NotificationActor", fields: [actorId], references: [id], onDelete: Cascade)
+  thread        Thread?  @relation(fields: [threadId], references: [id])
+  comment       Comment? @relation(fields: [commentId], references: [id])
+
+  read          Boolean @default(false)
+  createdAt     DateTime @default(now())
+
+  @@index([recipientId, createdAt])
+  @@index([recipientId, read])
 }
