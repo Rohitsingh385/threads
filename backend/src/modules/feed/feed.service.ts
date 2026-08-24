@@ -1,6 +1,29 @@
 import { prisma } from "../../config/prisma.js"
+import { getCache, setCache } from "../../utils/cache.js"
+
+type FeedResult = {
+    data: {
+        id: string
+        content: string
+        authorId: string
+        likesCount: number
+        commentsCount: number
+        createdAt: Date
+        updatedAt: Date
+    }[]
+    nextCursor: string | null
+    hasNextPage: boolean
+}
 
 export const getFeed = async (userId: string, limit: number, cursor?: string) => {
+
+    const cacheKey = `feed:user:${userId}:cursor:${cursor ?? "first"}:limit:${limit}`
+
+    const cachedFeed = await getCache<FeedResult>(cacheKey)
+
+    if (cachedFeed) {
+        return cachedFeed
+    }
     const following = await prisma.follow.findMany({
         where: {
             followerId: userId
@@ -37,9 +60,11 @@ export const getFeed = async (userId: string, limit: number, cursor?: string) =>
     const nextCursor = hasNextPage ? data[data.length - 1].id : null
 
 
-    return {
+    const result = {
         data,
         nextCursor,
         hasNextPage
     }
+    await setCache(cacheKey, result, 60)
+    return result
 }
