@@ -8,6 +8,7 @@ import follow from "./modules/follow/follow.route.js"
 import feed from "./modules/feed/feed.route.js"
 import search from "./modules/search/search.route.js"
 import bookmark from "./modules/bookmarks/bookmark.route.js"
+import notification from "./modules/notification/notification.route.js"
 import cookieParser from "cookie-parser"
 const app = express()
 
@@ -35,6 +36,8 @@ app.use('/api/v1', follow)
 app.use('/api/v1', like)
 
 app.use('/api/v1', comment)
+
+app.use('/api/v1', notification)
 
 app.use('/api/v1/threads', userThread)
 

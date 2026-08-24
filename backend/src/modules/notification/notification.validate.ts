@@ -1,4 +1,4 @@
-import {z} from "zod"
+import { z } from "zod"
 
 
 export const getNotificationSchema = z.object({
@@ -14,5 +14,13 @@ export const getNotificationSchema = z.object({
             .string()
             .trim()
             .optional()
+    })
+})
+
+export const notificationIdSchema = z.object({
+    params: z.object({
+        notificationId: z
+            .string()
+            .uuid()
     })
 })
