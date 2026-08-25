@@ -5,7 +5,7 @@ import { signupController, loginController, meController, logoutController, refr
 import { authMiddleware } from "../../middleware/auth.middleware.js"
 import multer from "multer"
 import { optionalAuthMiddleware } from "../../middleware/optionalAuthMiddleware.js"
-
+import { rateLimit } from "../../middleware/rateLimit.middleware.js"
 const storage = multer.memoryStorage()
 export const upload = multer({
     storage,
@@ -16,7 +16,7 @@ export const upload = multer({
 const router = Router()
 
 router.post('/signup', validate(signupSchema), signupController)
-router.post('/login', validate(loginSchema), loginController)
+router.post('/login',rateLimit({limit: 5, windowSeconds: 60, keyPrefix: "login"}), validate(loginSchema), loginController)
 
 router.post('/refresh', refreshTokenController)
 

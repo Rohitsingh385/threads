@@ -10,11 +10,19 @@ import search from "./modules/search/search.route.js"
 import bookmark from "./modules/bookmarks/bookmark.route.js"
 import notification from "./modules/notification/notification.route.js"
 import cookieParser from "cookie-parser"
+import { rateLimit } from "./middleware/rateLimit.middleware.js"
+const apiRateLimit = rateLimit({
+    limit: 100,
+    windowSeconds: 60,
+    keyPrefix: "api"
+})
 const app = express()
 
 
 app.use(express.json())
 app.use(cookieParser())
+
+
 
 app.get('/health', (req, res) => {
     res.status(200).json({
@@ -22,6 +30,8 @@ app.get('/health', (req, res) => {
         message: "Server is running"
     })
 })
+
+app.use(apiRateLimit)
 
 app.use('/api/v1/users', userRoute)
 

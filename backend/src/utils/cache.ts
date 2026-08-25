@@ -24,3 +24,16 @@ export const setCache = async<T>(key: string, value: T, ttl: number): Promise<vo
 
     }
 }
+
+
+export const incrementCounter = async(key: string, windowSeconds: number): Promise<number> => {
+    const count = await redisClient.incr(key)
+    if(count === 1){
+        await redisClient.expire(key, windowSeconds)
+    }
+    return count
+}
+
+export const getCacheTTL = async(key: string): Promise<number> => {
+    return await redisClient.ttl(key)
+}
