@@ -11,6 +11,8 @@ import bookmark from "./modules/bookmarks/bookmark.route.js"
 import notification from "./modules/notification/notification.route.js"
 import cookieParser from "cookie-parser"
 import { rateLimit } from "./middleware/rateLimit.middleware.js"
+import helmet from "helmet"
+import cors from "cors"
 const apiRateLimit = rateLimit({
     limit: 100,
     windowSeconds: 60,
@@ -19,6 +21,11 @@ const apiRateLimit = rateLimit({
 const app = express()
 
 
+app.use(helmet())
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true
+}))
 app.use(express.json())
 app.use(cookieParser())
 
