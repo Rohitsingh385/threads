@@ -1,22 +1,20 @@
-import { useState } from "react"
-import { FollowButton } from "./components/FollowButton"
-import Navbar from "./components/Navbar"
+import { Routes, Route } from "react-router-dom";
+import { Home } from "./pages/Home";
+import { Login } from "./pages/Login";
+import { Profile } from "./pages/Profile";
+import { Layout } from "./components/Layout";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
-function App() {
-  const [follow, setFollow] = useState(false)
-
+export function App() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar title="Threads" />
-      <main className="mx-auto max-w-2xl px-4 py-6">
-        <h1 className="text-4xl font-bold">Home</h1>
-        <FollowButton
-          initialFollowing={follow}
-          toggleFollow={() => setFollow(prev => !prev)}
-        />
-      </main>
-    </div>
+    <Routes>
+      <Route element={<Layout />}>
+        <Route path="/" element={
+          <ProtectedRoute isAuthenticated={true}> <Home /> </ProtectedRoute>
+          } />
+        <Route path="/login" element={<Login />} />
+        <Route path="/profile/:username" element={<Profile />} />
+      </Route>
+    </Routes>
   )
 }
-
-export default App
