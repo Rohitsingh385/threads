@@ -1,12 +1,13 @@
 import { useState } from "react"
-import { login, me, type MeResponse } from "../services/authService"
+import { login, me } from "../services/authService"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
-interface LoginProps {
-    setAccessToken: (token: string) => void
-    setUser: (user: MeResponse["data"]) => void
-}
-export function Login({ setAccessToken, setUser }: LoginProps) {
+import { setApiAccessToken } from "../services/api"
+import { useAuth } from "../context/AuthContext"
+
+export function Login() {
+
+    const { setAccessToken, setUser} = useAuth()
 
     const [formData, setFormData] = useState({
         email: "",
@@ -29,8 +30,10 @@ export function Login({ setAccessToken, setUser }: LoginProps) {
         try {
             const result = await login(formData)
             setAccessToken(result.data.accessToken)
+            setApiAccessToken(result.data.accessToken)
             const meResult = await me()
             setUser(meResult.data)
+            navigate("/")
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 setError(error.response?.data?.message || 'Login Failed')

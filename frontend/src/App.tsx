@@ -5,27 +5,30 @@ import { Profile } from "./pages/Profile";
 import { Layout } from "./components/Layout";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Signup } from "./pages/Signup";
-import { useState } from "react";
-import { logout, type MeResponse } from "./services/authService";
+import { logout} from "./services/authService";
+import { useAuth } from "./context/AuthContext";
+import { setApiAccessToken } from "./services/api";
 
 export function App() {
-  const [accessToken, setAccessToken] = useState<string | null>(null)
-  const isAuthenticated = accessToken !== null
-  const [user, setUser] = useState<MeResponse["data"] | null>(null)
+  const {setAccessToken, setUser} = useAuth()
+ 
 
   const handleLogout = async () => {
+   try{
     await logout()
-
+   }finally{
     setAccessToken(null)
     setUser(null)
+    setApiAccessToken(null)
+   }
   }
   return (
     <Routes>
       <Route element={<Layout onLogout={handleLogout} />}>
         <Route path="/" element={
-          <ProtectedRoute isAuthenticated={isAuthenticated}> <Home /> </ProtectedRoute>
+          <ProtectedRoute> <Home /> </ProtectedRoute>
         } />
-        <Route path="/login" element={<Login setAccessToken={setAccessToken} setUser={setUser} />} />
+        <Route path="/login" element={<Login/>} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/profile/:username" element={<Profile />} />
       </Route>
