@@ -30,7 +30,7 @@ api.interceptors.response.use(
         }
         const originalRequest = error.config as RetryableRequestConfig
 
-        if (originalRequest._retry) {
+        if (originalRequest.url === "/users/refresh" || originalRequest._retry) {
             return Promise.reject(error)
         }
 
@@ -46,6 +46,5 @@ api.interceptors.response.use(
         } catch (refreshError) {
             return Promise.reject(refreshError)
         }
-        return Promise.reject(error)
     }
 )

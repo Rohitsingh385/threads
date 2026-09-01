@@ -154,14 +154,38 @@ export const getDetails = async (username: string, userId: string) => {
             'user doesnt not exists'
         )
     }
-    const isFollowing = await prisma.follow.findUnique({
-        where: {
-            followingId_followerId: {
-                followerId: userId!,
-                followingId: user.id
+
+    const [threadsCount, followersCount, followingCount] = await Promise.all([
+        prisma.thread.count({
+            where: {
+                authorId: user.id 
             }
-        }
-    })
+        }),
+        prisma.follow.count({
+            where: {
+                followingId: user.id 
+            }
+        }),
+        prisma.follow.count({
+            where: {
+                followerId: user.id
+            }
+        })
+    ])
+
+    let isFollowing =false 
+    if(userId){
+        const follow = await prisma.follow.findUnique({
+            where: {
+                followingId_followerId: {
+                    followerId: userId,
+                    followingId: user.id
+                }
+            }
+        })
+        isFollowing = !!follow
+    }
+
     return {
         id: user.id,
         username: user.username,
@@ -170,7 +194,10 @@ export const getDetails = async (username: string, userId: string) => {
         bio: user.bio,
         avatarUrl: user.avatarUrl,
         avatarPublicId: user.avatarPublicId,
-        isFollowing: !!isFollowing
+        isFollowing,
+        threadsCount,
+        followersCount,
+        followingCount
     }
 }
 export const verifyOtp = async (userId: string, otp: string) => {

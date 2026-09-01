@@ -1,10 +1,28 @@
-import { useParams } from "react-router-dom"
-
+import { ProfileHeader } from "../components/ProfileHeader";
+import { useAuth } from "../context/AuthContext";
+import { Link } from "react-router-dom";
 export function Profile() {
-    const { username } = useParams()
+
+    const { user } = useAuth()
+    if (!user) {
+        return <div>Loading....</div>
+    }
     return (
-        <div>
-            <h1>Profile: {username}</h1>
-        </div>
+        <>
+            <ProfileHeader
+                username={user.username}
+                email={user.email}
+                bio={user.bio}
+                avatarUrl={user.avatarUrl}
+                threadsCount={user.threadsCount}
+                followersCount={user.followersCount}
+                followingCount={user.followingCount}
+            />
+            <Link to="/profile/edit" 
+                className="mt-4 inline-block rounded border px-4 py-2"
+            >
+                Edit Profile
+            </Link>
+            </>
     )
 }

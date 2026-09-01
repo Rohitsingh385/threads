@@ -11,6 +11,9 @@ interface User {
     bio: string | null
     avatarUrl: string | null
     avatarPublicId: string | null
+    threadsCount: number 
+    followersCount: number 
+    followingCount: number 
 }
 
 interface AuthContextType {
