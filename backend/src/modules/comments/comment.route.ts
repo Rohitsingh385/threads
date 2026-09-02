@@ -10,8 +10,8 @@ router.post('/threads/:threadId/comment', authMiddleware, validate(createComment
 
 router.get('/threads/:threadId/comments', validate(getCommentsSchema), getCommentController)
 
-router.patch('/threads/:commentId/', authMiddleware, validate(updateCommentSchema), updateCommentController)
+router.patch('/comments/:commentId/', authMiddleware, validate(updateCommentSchema), updateCommentController)
 
-router.delete('/threads/:commentId/', authMiddleware, validate(deleteCommentSchema), deleteCommentController)
+router.delete('/comments/:commentId/', authMiddleware, validate(deleteCommentSchema), deleteCommentController)
 
 export default router

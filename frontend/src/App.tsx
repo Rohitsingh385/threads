@@ -9,6 +9,8 @@ import { useAuth } from "./context/AuthContext";
 import { setApiAccessToken } from "./services/api";
 import { EditProfile } from "./pages/EditProfile";
 import { UserProfile } from "./pages/UserProfile";
+import { CreateThread } from "./pages/CreateThread";
+import { Thread } from "./pages/Thread";
 
 export function App() {
   const { setAccessToken, setUser } = useAuth()
@@ -45,6 +47,15 @@ export function App() {
             <UserProfile />
           }
         />
+        <Route
+          path="/threads/create"
+          element={
+            <ProtectedRoute>
+              <CreateThread />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/threads/:id" element={<Thread/>} />
       </Route>
     </Routes>
   )

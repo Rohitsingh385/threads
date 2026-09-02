@@ -61,7 +61,7 @@ model Thread {
 model Like {
   id        String   @id @default(uuid())
   threadId  String
-  thread    Thread   @relation(fields: [threadId], references: [id])
+  thread    Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())

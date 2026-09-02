@@ -134,14 +134,14 @@ export const updateThread = async (userId: string, threadId: string, content: st
     return thread
 }
 
-export const deleteThread = async (userId: string, theradId: threadIdinput) => {
+export const deleteThread = async (userId: string, threadId: string) => {
     const thread = await prisma.thread.deleteMany({
         where: {
-            id: theradId.id,
+            id: threadId,
             authorId: userId
         }
     })
-    if (!thread) {
+    if (thread.count === 0) {
         throw new ApiError(
             403,
             'Forbidden'
