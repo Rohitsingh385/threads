@@ -1,5 +1,5 @@
 import { prisma } from "../../config/prisma.js"
-import { getCache, setCache } from "../../utils/cache.js"
+// import { getCache, setCache } from "../../utils/cache.js"
 
 type FeedResult = {
     data: {
@@ -8,6 +8,7 @@ type FeedResult = {
         authorId: string
         likesCount: number
         commentsCount: number
+        isLiked: boolean
         createdAt: Date
         updatedAt: Date
     }[]
@@ -17,13 +18,14 @@ type FeedResult = {
 
 export const getFeed = async (userId: string, limit: number, cursor?: string) => {
 
-    const cacheKey = `feed:user:${userId}:cursor:${cursor ?? "first"}:limit:${limit}`
+    // commenting caching for now so that our like/unlike don't get stale for 60s
+    // const cacheKey = `feed:user:${userId}:cursor:${cursor ?? "first"}:limit:${limit}`
 
-    const cachedFeed = await getCache<FeedResult>(cacheKey)
+    // const cachedFeed = await getCache<FeedResult>(cacheKey)
 
-    if (cachedFeed) {
-        return cachedFeed
-    }
+    // if (cachedFeed) {
+    //     return cachedFeed
+    // }
     const following = await prisma.follow.findMany({
         where: {
             followerId: userId
@@ -57,14 +59,31 @@ export const getFeed = async (userId: string, limit: number, cursor?: string) =>
 
     const hasNextPage = threads.length > limit
     const data = hasNextPage ? threads.slice(0, limit) : threads
+    const likedThreads = await prisma.like.findMany({
+        where: {
+            userId,
+            threadId: {
+                in: data.map(thread => thread.id)
+            }
+        },
+        select: {
+            threadId: true
+        }
+    })
+    const likedThreadIds = new Set(
+        likedThreads.map(like => like.threadId)
+    )
     const nextCursor = hasNextPage ? data[data.length - 1].id : null
 
 
     const result = {
-        data,
+        data: data.map(thread => ({
+            ...thread,
+            isLiked: likedThreadIds.has(thread.id)
+        })),
         nextCursor,
         hasNextPage
     }
-    await setCache(cacheKey, result, 60)
+    // await setCache(cacheKey, result, 60)
     return result
 }
