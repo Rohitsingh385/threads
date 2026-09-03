@@ -2,8 +2,8 @@ export interface FeedThread {
     id: string
     content: string
     authorId: string
-    likesCount: string
-    commentsCount: string
+    likesCount: number
+    commentsCount: number
     createdAt: string 
     updatedAt: string
 }
