@@ -2,9 +2,9 @@ import { api } from "./api";
 
 
 export interface ThreadAuthor {
-    id: string 
-    username: string 
-    bio: string 
+    id: string
+    username: string
+    bio: string
     avatarUrl: string
 }
 export interface Thread {
@@ -47,11 +47,12 @@ export interface GetThreadResponse {
     data: {
         thread: Thread
         isLiked: boolean
+        isFollowingAuthor: boolean
     }
 }
 
 export interface UpdateThreadInput {
-    content: string 
+    content: string
 }
 
 export async function updateThread(threadId: string, input: UpdateThreadInput): Promise<GetThreadResponse> {
@@ -80,7 +81,7 @@ export async function createThread(input: createThreadInput): Promise<createThre
     )
     return response.data
 }
-export async function deleteThread(threadId: string){
+export async function deleteThread(threadId: string) {
     const response = await api.delete(`/threads/${threadId}`)
 
     return response.data

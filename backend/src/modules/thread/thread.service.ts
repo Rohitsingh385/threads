@@ -54,16 +54,17 @@ export const getThreadById = async (threadData: threadIdinput, userId?: string) 
             userId: userId
         }
     })
-    if (isLiked) {
-        return {
-            thread,
-            isLiked: true
+    const isFollowingAuthor = await prisma.follow.findFirst({
+        where: {
+            followerId: userId,
+            followingId: thread.authorId
         }
-    }
+    })
 
     return {
         thread,
-        isLiked: false
+        isFollowing: !!isFollowingAuthor,
+        isLiked: !!isLiked
     }
 
 }

@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { deleteThread, getThread, updateThread, type Thread as ThreadData } from "../services/threadService";
 import { useAuth } from "../context/AuthContext";
 import type { Comment } from "../types/comment";
 import { createComment, getComments } from "../services/commentService";
+import { toggleFollow } from "../services/followService";
 
 export function Thread() {
     const { id } = useParams<{ id: string }>()
@@ -28,9 +29,15 @@ export function Thread() {
     const [replies, setReplies] = useState<Record<string, Comment[]>>({})
     const [loadingReplies, setLoadingReplies] = useState<string | null>(null)
     const [repliesError, setRepliesError] = useState("")
+    const [isFollowing, setIsFollowing] = useState(false)
+    const [isFollowLoading, setIsFollowLoading] = useState(false)
+    const [followError, setFollowError] = useState("")
+
+
 
     const { user } = useAuth()
     const isOwner = user?.username === thread?.author?.username
+
     useEffect(() => {
         const fetchThread = async () => {
             if (!id) return
@@ -42,6 +49,7 @@ export function Thread() {
                 console.log("thread", result)
                 setThread(result.data.thread)
                 setEditContent(result.data.thread.content)
+                setIsFollowing(result.data.isFollowingAuthor)
             } catch (error) {
                 setError("Unable to load thread")
             } finally {
@@ -158,9 +166,52 @@ export function Thread() {
             setLoadingReplies(null)
         }
     }
+
+    const handleToggleFollow  = async() => {
+        if(!thread?.author?.username) return 
+
+        try{
+            setIsFollowLoading(true)
+            setFollowError("")
+
+            await toggleFollow(thread.author.username)
+
+            setIsFollowing(prev => !prev)
+
+        }catch(error){
+            setFollowError("Unable to update follow status")
+        }finally{
+            setIsFollowLoading(false)
+        }
+    }
     return (
         <main className="mx-auto max-w-2xl px-4 py-6">
             <article className="rounded-lg border p-4">
+                <div className="flex items-center gap-3">
+                    <p className="font-medium">
+                        @{thread.author?.username}
+                    </p>
+                    <button
+                        type="button"
+                        onClick={handleToggleFollow}
+                        disabled={isFollowLoading}
+                        className="rounded border px-3 py-1 disabled:opacity-50"
+                    >
+                        {isFollowLoading
+                         ? "..."
+                         : isFollowing 
+                            ? "Following"
+                            : "Follow"
+                        }
+                    </button>
+                </div>
+                {
+                    followError && (
+                        <p className="text-red-500">
+                            {followError}
+                        </p>
+                    )
+                }
                 <p className="whitespace-pre-wrap">
                     {thread.content}
                 </p>
