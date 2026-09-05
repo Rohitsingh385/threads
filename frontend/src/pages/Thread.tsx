@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { deleteThread, getThread, updateThread, type Thread as ThreadData } from "../services/threadService";
@@ -29,27 +29,27 @@ export function Thread() {
     const [replies, setReplies] = useState<Record<string, Comment[]>>({})
     const [loadingReplies, setLoadingReplies] = useState<string | null>(null)
     const [repliesError, setRepliesError] = useState("")
-    const [isFollowing, setIsFollowing] = useState(false)
+    const [isFollowing, setIsFollowing] = useState<boolean | null>(null)
     const [isFollowLoading, setIsFollowLoading] = useState(false)
     const [followError, setFollowError] = useState("")
 
 
 
-    const { user } = useAuth()
+    const { user, isAuthLoading } = useAuth()
     const isOwner = user?.username === thread?.author?.username
 
     useEffect(() => {
         const fetchThread = async () => {
-            if (!id) return
+            if (!id || isAuthLoading) return
 
             try {
                 setIsLoading(true)
                 setError("")
                 const result = await getThread(id)
-                console.log("thread", result)
+
                 setThread(result.data.thread)
                 setEditContent(result.data.thread.content)
-                setIsFollowing(result.data.isFollowingAuthor)
+                setIsFollowing(result.data.isFollowing)
             } catch (error) {
                 setError("Unable to load thread")
             } finally {
@@ -57,7 +57,7 @@ export function Thread() {
             }
         }
         fetchThread()
-    }, [id])
+    }, [id, isAuthLoading])
 
     useEffect(() => {
         const fetchComments = async () => {
@@ -127,7 +127,7 @@ export function Thread() {
             setIsCreatingReply(true)
             setReplyError("")
 
-          const result = await createComment(
+            const result = await createComment(
                 id,
                 content,
                 replyingTo
@@ -167,10 +167,10 @@ export function Thread() {
         }
     }
 
-    const handleToggleFollow  = async() => {
-        if(!thread?.author?.username) return 
+    const handleToggleFollow = async () => {
+        if (!thread?.author?.username) return
 
-        try{
+        try {
             setIsFollowLoading(true)
             setFollowError("")
 
@@ -178,12 +178,13 @@ export function Thread() {
 
             setIsFollowing(prev => !prev)
 
-        }catch(error){
+        } catch (error) {
             setFollowError("Unable to update follow status")
-        }finally{
+        } finally {
             setIsFollowLoading(false)
         }
     }
+
     return (
         <main className="mx-auto max-w-2xl px-4 py-6">
             <article className="rounded-lg border p-4">
@@ -194,14 +195,14 @@ export function Thread() {
                     <button
                         type="button"
                         onClick={handleToggleFollow}
-                        disabled={isFollowLoading}
+                        disabled={isFollowLoading || isFollowing === null}
                         className="rounded border px-3 py-1 disabled:opacity-50"
                     >
                         {isFollowLoading
-                         ? "..."
-                         : isFollowing 
-                            ? "Following"
-                            : "Follow"
+                            ? "..."
+                            : isFollowing
+                                ? "Following"
+                                : "Follow"
                         }
                     </button>
                 </div>
@@ -396,9 +397,9 @@ export function Thread() {
                                         )}
                                         {!replies[comment.id] && (
                                             <button
-                                            type="button"
-                                            onClick={() => fetchReplies(comment.id)}
-                                            disabled={loadingReplies === comment.id}
+                                                type="button"
+                                                onClick={() => fetchReplies(comment.id)}
+                                                disabled={loadingReplies === comment.id}
                                             >
                                                 {loadingReplies === comment.id ? "Loading replies..." : "View replies"}
                                             </button>
@@ -407,7 +408,7 @@ export function Thread() {
                                             <div className="ml-6 mt-3 space-y-3">
                                                 {replies[comment.id].length === 0 ? (
                                                     <p>No replies yet.</p>
-                                                ): (
+                                                ) : (
                                                     replies[comment.id].map((reply) => (
                                                         <div key={reply.id}>
                                                             <p className="font-medium">

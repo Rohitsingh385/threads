@@ -47,7 +47,7 @@ export interface GetThreadResponse {
     data: {
         thread: Thread
         isLiked: boolean
-        isFollowingAuthor: boolean
+        isFollowing: boolean
     }
 }
 
@@ -63,7 +63,7 @@ export async function updateThread(threadId: string, input: UpdateThreadInput): 
 }
 
 export async function getThread(threadId: string): Promise<GetThreadResponse> {
-    const response = await api.get<GetThreadResponse>(`/threads/${threadId}`)
+    const response = await api.get<GetThreadResponse>(`/threads/${threadId}?t=${Date.now()}`)
     return response.data
 }
 

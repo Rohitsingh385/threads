@@ -8,7 +8,7 @@ export const followController = asyncHandler(async (req: Request, res: Response)
 
     return res.status(201).json({
         success: true,
-        message: 'user followed',
+        message: result.message,
         data: result
     })
 })

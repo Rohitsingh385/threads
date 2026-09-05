@@ -16,7 +16,7 @@ export const getThreadByIdController = asyncHandler(async (req: Request, res: Re
 
     // console.log(req.params.id)
     const result = await getThreadById(req.params, req.user?.userId)
-
+    res.set("Cache-Control", "no-store")
     return res.status(200).json({
         success: true,
         message: 'result',
@@ -24,7 +24,7 @@ export const getThreadByIdController = asyncHandler(async (req: Request, res: Re
     })
 })
 export const getThreadByUsernameController = asyncHandler(async (req: Request, res: Response) => {
-    
+
     const result = await getThreadByUsername(req.params.username, req.query.limit, req.query.cursor)
 
     return res.status(200).json({

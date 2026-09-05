@@ -31,7 +31,6 @@ export const followService = async (userId: string, username: string) => {
             }
         }
     })
-
     if (checkFollow) {
         //unfollow
         const [unfollow] = await prisma.$transaction([
@@ -65,7 +64,10 @@ export const followService = async (userId: string, username: string) => {
                 }
             })
         ])
-        return unfollow
+        return {
+            unfollow,
+            message: 'user unfollowed'
+        }
     }
 
     const follow = await prisma.$transaction(async (tx) => {
@@ -102,7 +104,10 @@ export const followService = async (userId: string, username: string) => {
             followerCount
         }
     })
-    return follow
+    return {
+        follow,
+        message: 'user followed'
+    }
 }
 
 export const getFollowing = async (username: string) => {
