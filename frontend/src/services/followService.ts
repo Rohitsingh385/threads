@@ -24,3 +24,9 @@ export async function toggleFollow (username: string): Promise<followResponse>{
     
     return result.data
 }
+
+export async function toggleBookmark(id: string ): Promise<followResponse>{
+
+    const result = await api.post<followResponse>(`/user/${id}/bookmark`)
+    return result.data
+}

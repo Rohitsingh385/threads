@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import type { Comment } from "../types/comment";
 import { createComment, getComments } from "../services/commentService";
 import { toggleFollow } from "../services/followService";
-
+import { toggleBookmark } from "../services/followService";
 export function Thread() {
     const { id } = useParams<{ id: string }>()
     const [thread, setThread] = useState<ThreadData | null>(null)
@@ -32,6 +32,9 @@ export function Thread() {
     const [isFollowing, setIsFollowing] = useState<boolean | null>(null)
     const [isFollowLoading, setIsFollowLoading] = useState(false)
     const [followError, setFollowError] = useState("")
+    const [isBookmarked, setIsBookmarked] = useState(false)
+    const [isBookmarkedLoading, setIsBookmarkedLoading] = useState(false)
+    const [bookmarkError, setBookmarkError] = useState("")
 
 
 
@@ -50,6 +53,7 @@ export function Thread() {
                 setThread(result.data.thread)
                 setEditContent(result.data.thread.content)
                 setIsFollowing(result.data.isFollowing)
+                setIsBookmarked(result.data.isBookmarked)
             } catch (error) {
                 setError("Unable to load thread")
             } finally {
@@ -185,6 +189,22 @@ export function Thread() {
         }
     }
 
+    const handleToggleBookmark = async() => {
+        if(!thread) return
+
+        try{
+            setIsBookmarkedLoading(true)
+            setBookmarkError("")
+
+            await toggleBookmark(thread.id)
+
+            setIsBookmarked(prev => !prev)
+        }catch(error){
+            setBookmarkError("unable to update bookmark")
+        }finally{
+            setIsBookmarkedLoading(false)
+        }
+    }
     return (
         <main className="mx-auto max-w-2xl px-4 py-6">
             <article className="rounded-lg border p-4">
@@ -429,6 +449,26 @@ export function Thread() {
                             </div>
                         )}
                 </section>
+
+                <button
+                    type="button"
+                    onClick={handleToggleBookmark}
+                    disabled={isBookmarkedLoading}
+                    className="rounded border px-3 py-1 disabled:opacity-50"
+                >
+                    {isBookmarkedLoading
+                    
+                    ? "..."
+                    : isBookmarked
+                        ? "Bookmarked"
+                        : "Bookmarked"    
+                    }
+                </button>
+                    {bookmarkError && (
+                        <p className="text-red-500">
+                            {bookmarkError}
+                        </p>
+                    )}
             </article>
         </main>
     )

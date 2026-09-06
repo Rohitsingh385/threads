@@ -48,6 +48,7 @@ export interface GetThreadResponse {
         thread: Thread
         isLiked: boolean
         isFollowing: boolean
+        isBookmarked: boolean
     }
 }
 

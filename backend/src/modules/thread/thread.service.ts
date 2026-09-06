@@ -60,11 +60,20 @@ export const getThreadById = async (threadData: threadIdinput, userId?: string) 
             followingId: thread.authorId
         }
     })
-
+    const isBookMarked = await prisma.bookmark.findUnique({
+        where:  {
+            userId_threadId: {
+                userId,
+                threadId: threadData.id
+            }
+        }
+    })
+    
     return {
         thread,
         isFollowing: !!isFollowingAuthor,
-        isLiked: !!isLiked
+        isLiked: !!isLiked,
+        isBookmarked: !!isBookMarked
     }
 
 }
