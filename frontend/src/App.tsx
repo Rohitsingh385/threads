@@ -12,7 +12,8 @@ import { UserProfile } from "./pages/UserProfile";
 import { CreateThread } from "./pages/CreateThread";
 import { Thread } from "./pages/Thread";
 import { Bookmarks } from "./pages/Bookmarks";
-import { UserSearch } from "./services/searchService";
+import { UserSearch } from "./pages/UserSearch";
+import { Notifications } from "./pages/Notifications";
 export function App() {
   const { setAccessToken, setUser } = useAuth()
 
@@ -72,6 +73,14 @@ export function App() {
               <UserSearch />
             </ProtectedRoute>
           }
+        />
+        <Route
+        path="/notifications"
+        element={
+          <ProtectedRoute>
+            <Notifications/>
+          </ProtectedRoute>
+        }
         />
       </Route>
     </Routes>
