@@ -12,6 +12,7 @@ import { UserProfile } from "./pages/UserProfile";
 import { CreateThread } from "./pages/CreateThread";
 import { Thread } from "./pages/Thread";
 import { Bookmarks } from "./pages/Bookmarks";
+import { UserSearch } from "./services/searchService";
 export function App() {
   const { setAccessToken, setUser } = useAuth()
 
@@ -57,12 +58,20 @@ export function App() {
         />
         <Route path="/threads/:id" element={<Thread />} />
         <Route
-         path="/bookmarks"
-         element={
+          path="/bookmarks"
+          element={
             <ProtectedRoute>
-              <Bookmarks/>
+              <Bookmarks />
             </ProtectedRoute>
-         }
+          }
+        />
+        <Route
+          path="/search"
+          element={
+            <ProtectedRoute>
+              <UserSearch />
+            </ProtectedRoute>
+          }
         />
       </Route>
     </Routes>
