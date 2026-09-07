@@ -461,7 +461,7 @@ export function Thread() {
                     ? "..."
                     : isBookmarked
                         ? "Bookmarked"
-                        : "Bookmarked"    
+                        : "Bookmark"    
                     }
                 </button>
                     {bookmarkError && (
