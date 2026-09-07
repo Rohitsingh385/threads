@@ -1,5 +1,5 @@
 import { api } from "./api";
-import type { CommentResponse, Comment } from "../types/comment";
+import type { CommentResponse, CreateCommentResponse } from "../types/comment";
 
 interface GetCommentsParams {
     parentId?: string | null
@@ -7,11 +7,6 @@ interface GetCommentsParams {
     limit?: number
 }
 
-interface CreateCommentResponse {
-    success: boolean
-    message: string
-    data: Comment
-}
 
 export async function createComment(threadId: string, content: string, parentCommentId?: string): Promise<CreateCommentResponse> {
     const response = await api.post<CreateCommentResponse>(`/threads/${threadId}/comment`, { content, parentCommentId })

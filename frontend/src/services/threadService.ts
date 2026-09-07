@@ -5,13 +5,14 @@ export interface ThreadAuthor {
     id: string
     username: string
     bio: string
-    avatarUrl: string
+    avatarUrl: string | null
 }
 export interface Thread {
     id: string
     content: string
     authorId: string
     likesCount: number
+    isLiked: boolean
     commentsCount: number
     createdAt: string
     updatedAt: string

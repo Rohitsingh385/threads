@@ -40,7 +40,11 @@ export function ThreadCard({ thread }: ThreadCardProps) {
                 </p>
                 <div className="mt-3 flex gap-4 text-sm text-gray-500">
                     <button
-                    onClick={handleLike}
+                    onClick={(event) => {
+                        event.preventDefault()
+                        event.stopPropagation()
+                        handleLike()
+                    }}
                     disabled={isLikeLoading}
                     >
                         {isLiked ? "Unlike" : "Like"} {likesCount}

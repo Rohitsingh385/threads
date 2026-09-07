@@ -108,7 +108,7 @@ export function Thread() {
             const result = await createComment(id, content)
 
             setComments(prev => [
-                result.data,
+                result.data.comment,
                 ...prev
             ])
             setCommentContent("")
@@ -140,7 +140,7 @@ export function Thread() {
                 ...prev,
                 [replyingTo]: [
                     ...(prev[replyingTo] ?? []),
-                    result.data
+                    result.data.comment
                 ]
             }))
             setReplyContent("")
@@ -189,19 +189,19 @@ export function Thread() {
         }
     }
 
-    const handleToggleBookmark = async() => {
-        if(!thread) return
+    const handleToggleBookmark = async () => {
+        if (!thread) return
 
-        try{
+        try {
             setIsBookmarkedLoading(true)
             setBookmarkError("")
 
             await toggleBookmark(thread.id)
 
             setIsBookmarked(prev => !prev)
-        }catch(error){
+        } catch (error) {
             setBookmarkError("unable to update bookmark")
-        }finally{
+        } finally {
             setIsBookmarkedLoading(false)
         }
     }
@@ -370,14 +370,15 @@ export function Thread() {
                         comments.length > 0 && (
                             <div className="mt-4 space-y-4">
                                 {comments.map((comment) => (
-                                    <div key={comment.id}>
-                                        <p className="font-medium">
-                                            @{comment.userId}
+                                    <div key={comment.id} className=" space-x-2">
+                                        <p className="font-medium bg-gray-100">
+                                            @{comment.username}
                                         </p>
-                                        <p>
+                                        <p className="bg-gray-100 p-2">
                                             {comment.content}
                                         </p>
                                         <button
+                                            className="font-bold"
                                             type="button"
                                             onClick={() => {
                                                 setReplyingTo(comment.id)
@@ -390,7 +391,7 @@ export function Thread() {
                                                 <textarea
                                                     value={replyContent}
                                                     onChange={(e) => setReplyContent(e.target.value)}
-                                                    placeholder={`Reply to @${comment.userId}...`}
+                                                    placeholder={`Reply to @${comment.username}...`}
                                                     maxLength={100}
                                                     rows={2}
                                                     className="w-full rounded border px-3 py-2"
@@ -406,17 +407,21 @@ export function Thread() {
                                                     {isCreatingReply ? "Replying..." : "Reply"}
                                                 </button>
                                                 <button
+                                                
                                                     type="button"
                                                     onClick={() => {
                                                         setReplyingTo(null)
                                                         setReplyContent("")
-                                                    }}>
+                                                    }}
+                                                className="rounded bg-gray-500 px-3 py-1 text-white disabled:opacity-50"    
+                                                >
                                                     Cancel
                                                 </button>
                                             </form>
                                         )}
                                         {!replies[comment.id] && (
                                             <button
+                                                className="font-bold mb-3"
                                                 type="button"
                                                 onClick={() => fetchReplies(comment.id)}
                                                 disabled={loadingReplies === comment.id}
@@ -431,10 +436,10 @@ export function Thread() {
                                                 ) : (
                                                     replies[comment.id].map((reply) => (
                                                         <div key={reply.id}>
-                                                            <p className="font-medium">
+                                                            <p className="font-medium bg-gray-100">
                                                                 @{reply.username}
                                                             </p>
-                                                            <p>
+                                                            <p className="p-2 bg-gray-100">
                                                                 {reply.content}
                                                             </p>
                                                         </div>
@@ -457,18 +462,18 @@ export function Thread() {
                     className="rounded border px-3 py-1 disabled:opacity-50"
                 >
                     {isBookmarkedLoading
-                    
-                    ? "..."
-                    : isBookmarked
-                        ? "Bookmarked"
-                        : "Bookmark"    
+
+                        ? "..."
+                        : isBookmarked
+                            ? "Bookmarked"
+                            : "Bookmark"
                     }
                 </button>
-                    {bookmarkError && (
-                        <p className="text-red-500">
-                            {bookmarkError}
-                        </p>
-                    )}
+                {bookmarkError && (
+                    <p className="text-red-500">
+                        {bookmarkError}
+                    </p>
+                )}
             </article>
         </main>
     )

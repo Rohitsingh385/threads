@@ -57,7 +57,7 @@ export const getBookmarks = async (userId: string, limit: number, cursor: string
         where: {
             userId: userId
         },
-        take: limit + 1 ,
+        take: limit + 1,
         ...(cursor && {
             cursor: {
                 id: cursor
@@ -67,13 +67,14 @@ export const getBookmarks = async (userId: string, limit: number, cursor: string
         orderBy: {
             createdAt: "desc"
         },
-        include:{
+        include: {
             thread: {
                 include: {
                     author: {
                         select: {
                             id: true,
                             username: true,
+                            bio: true,
                             avatarUrl: true
                         }
                     }
@@ -82,12 +83,34 @@ export const getBookmarks = async (userId: string, limit: number, cursor: string
         }
     })
 
-    const hashNextPage = bookmarks.length > limit 
-    const data = hashNextPage? bookmarks.slice(0, limit) : bookmarks
-    const nextCursor = hashNextPage ? data[data.length - 1].id : null 
+    const hasNextPage = bookmarks.length > limit
+    const data = hasNextPage ? bookmarks.slice(0, limit) : bookmarks
+    const nextCursor = hasNextPage ? data[data.length - 1].id : null
+
+    const likedThreads = await prisma.like.findMany({
+        where: {
+            userId: userId,
+            threadId: {
+                in: data.map(bookmark => bookmark.threadId)
+            }
+        },
+        select: {
+            threadId: true
+        }
+    })
+    const likeThreadIds = new Set(
+        likedThreads.map(like => like.threadId)
+    )
+    const result = data.map(bookmark => ({
+        ...bookmark,
+        thread: {
+            ...bookmark.thread,
+            isLiked: likeThreadIds.has(bookmark.thread.id)
+        }
+    }))
     return {
-        data,
+        data: result,
         nextCursor,
-        hashNextPage
+        hasNextPage
     }
 }

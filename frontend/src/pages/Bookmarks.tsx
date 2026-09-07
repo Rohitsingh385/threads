@@ -1,9 +1,10 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { getBookmarks, type BookmarkThread } from "../services/bookmarkService";
+import { ThreadCard } from "../components/ThreadCard";
 
 export const Bookmarks = () => {
-    const [threads, setThreads] = useState<BookmarkThread[]>([])
+    const [bookmarks, setBookmarks] = useState<BookmarkThread[]>([])
     const [nextCursor, setNextCursor] = useState<string | null>(null)
     const [hasNextPage, setHasNextPage] = useState(false)
 
@@ -18,7 +19,7 @@ export const Bookmarks = () => {
                 setError("")
 
                 const result = await getBookmarks()
-                setThreads(result.data.data)
+                setBookmarks(result.data.data)
                 setNextCursor(result.data.nextCursor)
                 setHasNextPage(result.data.hasNextPage)
             }catch(error){
@@ -57,7 +58,7 @@ export const Bookmarks = () => {
             setIsLoadingMore(true)
             const result = await getBookmarks(10, nextCursor)
 
-            setThreads(prev => [
+            setBookmarks(prev => [
                 ...prev,
                 ...result.data.data
             ])
@@ -77,14 +78,14 @@ export const Bookmarks = () => {
             {isLoading && <p>Loading Bookmarks</p>}
             {error && <p>{error}</p>}
 
-            {!isLoading && !error && threads.length === 0 && (
+            {!isLoading && !error && bookmarks.length === 0 && (
                 <p>You haven't bookmarked anything yet.</p>
             )}
-            {threads.map((thread)=> (
-                <div key={thread.id}>
-                    <p>@{thread.author.username}</p>
-                    <p>{thread.content}</p>
-                </div>
+            {bookmarks.map((bookmark)=> (
+                <ThreadCard 
+                key={bookmark.id}
+                thread={bookmark.thread}
+                />
             ))}
             <div id="bookmarks-loader">
             {isLoadingMore && <p>Loading more...</p>}

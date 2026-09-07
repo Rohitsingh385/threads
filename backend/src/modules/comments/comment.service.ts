@@ -39,6 +39,14 @@ export const createComment = async (userId: string, threadId: string, content: s
                     threadId: threadId,
                     parentId: parentCommentId,
                     userId: userId
+                },
+                include: {
+                    user: {
+                        select: {
+                            username: true,
+                            avatarUrl: true
+                        }
+                    }
                 }
             })
             const updateCommentCount = await tx.thread.update({
@@ -60,7 +68,18 @@ export const createComment = async (userId: string, threadId: string, content: s
             }
         })
         return {
-            result
+            comment: {
+                id: result.comment.id,
+                content: result.comment.content,
+                threadId: result.comment.threadId,
+                userId: result.comment.userId,
+                username: result.comment.user.username,
+                parentId: result.comment.parentId,
+                createdAt: result.comment.createdAt,
+                updatedAt: result.comment.updatedAt,
+                deletedAt: result.comment.deletedAt
+            },
+            updateCommentCount: result.updateCommentCount
         }
     }
 
@@ -71,6 +90,14 @@ export const createComment = async (userId: string, threadId: string, content: s
                 content,
                 threadId: threadId,
                 userId: userId
+            },
+            include: {
+                user: {
+                    select: {
+                        username: true,
+                        avatarUrl: true
+                    }
+                }
             }
         })
         const updateCommentCount = await prisma.thread.update({
@@ -92,7 +119,20 @@ export const createComment = async (userId: string, threadId: string, content: s
             updateCommentCount
         }
     })
-    return result
+    return {
+        comment: {
+            id: result.comment.id,
+            content: result.comment.content,
+            threadId: result.comment.threadId,
+            userId: result.comment.userId,
+            username: result.comment.user.username,
+            parentId: result.comment.parentId,
+            createdAt: result.comment.createdAt,
+            updatedAt: result.comment.updatedAt,
+            deletedAt: result.comment.deletedAt
+        },
+        updateCommentCount: result.updateCommentCount
+    }
 }
 
 export const getComment = async (threadId: string, parentId: string, limit: number, cursor?: string) => {
@@ -131,8 +171,18 @@ export const getComment = async (threadId: string, parentId: string, limit: numb
 
     const nextCursor = hasNextPage ? data[data.length - 1].id : null
 
+    const commentResponseShape = data.map((comment) => ({
+        id: comment.id,
+        content: comment.content,
+        threadId: comment.threadId,
+        username: comment.user.username,
+        parentId: comment.parentId,
+        createdAt: comment.createdAt,
+        updatedAt: comment.updatedAt,
+        deletedAt: comment.deletedAt
+    }))
     return {
-        data,
+        data: commentResponseShape,
         nextCursor
     }
 

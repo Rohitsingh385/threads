@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { signup } from "../services/authService";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 export function Signup() {
 
     const [formdata, setFormData] = useState({
@@ -16,7 +16,7 @@ export function Signup() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setError("")
-        
+
         if (formdata.username.length < 3) {
             setError("username must be atleast 3 characters")
             return
@@ -42,42 +42,63 @@ export function Signup() {
     }
 
     return (
-        <form onSubmit={handleSubmit}>
-            <label htmlFor="">Username</label><input
-                className="border-b"
-                value={formdata.username}
-                onChange={(e) => {
-                    setFormData({
-                        ...formdata,
-                        username: e.target.value
-                    })
-                }}
+        <main className="flex justify-center pt-16">
+            <div className="w-full max-w-md rounded-lg border bg-white p-6">
+                <h1 className="mb-6 text-2xl font-bold text-center">Welcome Back</h1>
 
-            />
-            <label htmlFor="">email</label><input
-                className="border-b"
-                value={formdata.email}
-                onChange={(e) => {
-                    setFormData({
-                        ...formdata,
-                        email: e.target.value
-                    })
-                }}
-            />
-            <label htmlFor="">password</label> <input
-                className="border-b"
-                value={formdata.password}
-                onChange={(e) => {
-                    setFormData({
-                        ...formdata,
-                        password: e.target.value
-                    })
-                }}
-            />
-            <button type="submit" disabled={isLoading}>
-                {isLoading ? "Signing up...." : "Sign up"}
-            </button>
-            {error && <p>{error}</p>}
-        </form>
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+
+                    <label className="mb-1 block text-sm font-medium">Username</label>
+
+                    <input
+                        className="w-full rounded border px-3 py-2"
+                        value={formdata.username}
+                        onChange={(e) => {
+                            setFormData({
+                                ...formdata,
+                                username: e.target.value
+                            })
+                        }}
+
+                    />
+                    <label
+                        className="mb-1 block text-sm font-medium">
+                        email
+                    </label>
+                    <input
+                        className="w-full rounded border px-3 py-2"
+                        value={formdata.email}
+                        onChange={(e) => {
+                            setFormData({
+                                ...formdata,
+                                email: e.target.value
+                            })
+                        }}
+                    />
+                    <label className="mb-1 block text-sm font-medium">
+                        password
+                    </label>
+                    <input
+                        className="w-full rounded border px-3 py-2"
+                        value={formdata.password}
+                        onChange={(e) => {
+                            setFormData({
+                                ...formdata,
+                                password: e.target.value
+                            })
+                        }}
+                    />
+                    <button className="w-full rounded bg-black px-4 py-2 text-white disabled:opacity-50" type="submit" disabled={isLoading}>
+                        {isLoading ? "Signing up...." : "Sign up"}
+                    </button>
+                    {error && <p>{error}</p>}
+                </form>
+                <p className="mt-4 text-center text-sm">
+                    Already have an account?{" "}
+                    <Link to="/login" className="font-medium underline">Login</Link>
+                </p>
+            </div>
+        </main>
     )
 }
