@@ -37,3 +37,19 @@ export const incrementCounter = async(key: string, windowSeconds: number): Promi
 export const getCacheTTL = async(key: string): Promise<number> => {
     return await redisClient.ttl(key)
 }
+
+export const deleteFeedCache  = async(userId: string): Promise<void> => {
+    try{
+        const pattern = `feed:user:${userId}:*`
+        const keys: string[] = []
+        
+        for await (const keys of redisClient.scanIterator({MATCH: pattern})){
+            for(const key of keys){
+                await redisClient.del(key)
+            }
+        }
+        
+    }catch{
+        
+    }
+}

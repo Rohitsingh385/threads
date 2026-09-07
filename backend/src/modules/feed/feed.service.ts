@@ -1,64 +1,89 @@
 import { prisma } from "../../config/prisma.js"
-// import { getCache, setCache } from "../../utils/cache.js"
+import { getCache, setCache } from "../../utils/cache.js"
 
-type FeedResult = {
-    data: {
-        id: string
-        content: string
-        authorId: string
-        likesCount: number
-        commentsCount: number
-        isLiked: boolean
-        createdAt: Date
-        updatedAt: Date
-    }[]
-    nextCursor: string | null
-    hasNextPage: boolean
-}
 
 export const getFeed = async (userId: string, limit: number, cursor?: string) => {
 
-    // commenting caching for now so that our like/unlike don't get stale for 60s
-    // const cacheKey = `feed:user:${userId}:cursor:${cursor ?? "first"}:limit:${limit}`
+    const cacheKey = `feed:user:${userId}:cursor:${cursor ?? "first"}:limit:${limit}`
 
-    // const cachedFeed = await getCache<FeedResult>(cacheKey)
+    const cachedFeed = await getCache<{
+        threadIds: string[] 
+        nextCursor: string | null 
+        hasNextPage: boolean
+    }>(cacheKey)
 
-    // if (cachedFeed) {
-    //     return cachedFeed
-    // }
-    const following = await prisma.follow.findMany({
+
+    let threadIds : string []
+    let nextCursor : string | null 
+    let hasNextPage : boolean
+
+    if(cachedFeed){
+        threadIds = cachedFeed.threadIds
+        nextCursor = cachedFeed.nextCursor
+        hasNextPage = cachedFeed.hasNextPage
+    }else {
+        const following = await prisma.follow.findMany({
+            where : {
+                followerId: userId
+            },
+            select: {
+                followingId: true
+            }
+        })
+
+        const authorIds = [
+            userId,
+            ...following.map(follow => follow.followingId)
+        ]
+        const threads = await prisma.thread.findMany({
+            where: {
+                authorId: {
+                    in: authorIds
+                }
+            },
+            take: limit + 1,
+            ...(cursor && {
+                cursor: {
+                    id: cursor
+                },
+                skip: 1
+            }),
+            orderBy: {
+                createdAt: "desc"
+            }
+        })
+        hasNextPage = threads.length > limit
+
+        const data = hasNextPage
+            ? threads.slice(0, limit)
+            : threads
+
+        threadIds = data.map(thread => thread.id)
+        nextCursor = hasNextPage
+            ? data[data.length -1].id
+            : null
+        
+        await setCache(
+            cacheKey,
+            {
+                threadIds,
+                nextCursor,
+                hasNextPage
+            },
+            60
+        )
+    }
+
+    const data = await prisma.thread.findMany({
         where: {
-            followerId: userId
-        },
-        select: {
-            followingId: true
-        }
-    })
-
-    const authorIds = [
-        userId,
-        ...following.map(follow => follow.followingId)
-    ]
-    const threads = await prisma.thread.findMany({
-        where: {
-            authorId: {
-                in: authorIds
+            id: {
+                in: threadIds
             }
         },
-        take: limit + 1,
-        ...(cursor && {
-            cursor: {
-                id: cursor
-            },
-            skip: 1
-        }),
         orderBy: {
             createdAt: "desc"
         }
     })
-
-    const hasNextPage = threads.length > limit
-    const data = hasNextPage ? threads.slice(0, limit) : threads
     const likedThreads = await prisma.like.findMany({
         where: {
             userId,
@@ -73,8 +98,7 @@ export const getFeed = async (userId: string, limit: number, cursor?: string) =>
     const likedThreadIds = new Set(
         likedThreads.map(like => like.threadId)
     )
-    const nextCursor = hasNextPage ? data[data.length - 1].id : null
-
+  
 
     const result = {
         data: data.map(thread => ({

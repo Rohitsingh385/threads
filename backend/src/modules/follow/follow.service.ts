@@ -3,7 +3,7 @@ import { NotificationType } from "@prisma/client"
 import { prisma } from "../../config/prisma.js"
 import { ApiError } from "../../utils/ApiError.js"
 import { createNotification } from "../notification/notification.service.js"
-
+import { deleteFeedCache } from "../../utils/cache.js"
 export const followService = async (userId: string, username: string) => {
 
     const checkUserExists = await prisma.user.findFirst({
@@ -62,8 +62,9 @@ export const followService = async (userId: string, username: string) => {
                         decrement: 1
                     }
                 }
-            })
+            }),
         ])
+        await deleteFeedCache(userId)
         return {
             unfollow,
             message: 'user unfollowed'
@@ -104,6 +105,8 @@ export const followService = async (userId: string, username: string) => {
             followerCount
         }
     })
+
+    await deleteFeedCache(userId)
     return {
         follow,
         message: 'user followed'

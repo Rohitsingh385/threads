@@ -1,6 +1,7 @@
 import { prisma } from "../../config/prisma.js"
 import { ApiError } from "../../utils/ApiError.js"
 import type { threadInput, threadIdinput, getUserInput } from "./thread.validation.js"
+import { deleteFeedCache } from "../../utils/cache.js"
 
 export const createThread = async (userId: string, threadData: threadInput) => {
 
@@ -22,6 +23,20 @@ export const createThread = async (userId: string, threadData: threadInput) => {
             authorId: userId
         }
     })
+
+    const followers = await prisma.follow.findMany({
+        where: {
+            followingId: userId
+        },
+        select: {
+            followerId: true
+        }
+    })
+    await deleteFeedCache(userId)
+
+    for(const follower of followers){
+        await deleteFeedCache(follower.followerId)
+    }
     return thread
 }
 
