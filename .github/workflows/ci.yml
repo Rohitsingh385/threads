@@ -23,6 +23,7 @@ jobs:
       CLOUDINARY_CLOUD_NAME: ci_test 
       CLOUDINARY_API_KEY: ci_test 
       CLOUDINARY_API_SECRET: ci_test
+      CLIENT_URL: http://localhost:5173
 
     services:
       postgres:
