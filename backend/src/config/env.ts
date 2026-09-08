@@ -7,6 +7,9 @@ const envSchema = z.object({
         .coerce
         .number()
         .int(),
+    CLIENT_URL: z   
+        .string()
+        .trim(),
     ACCESS_TOKEN: z
         .string()
         .trim(),
@@ -31,6 +34,9 @@ const envSchema = z.object({
     CLOUDINARY_API_SECRET: z
         .string()
         .trim(),
+    NODE_ENV: z
+        .enum(["development", "production", "test"])
+        .default("development")
 })
 
 export const env = envSchema.parse(process.env)

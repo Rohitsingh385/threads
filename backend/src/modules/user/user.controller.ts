@@ -1,7 +1,8 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../../utils/asyncHandler.js";
-import { signUpService, loginService, meService, refreshTokenService, verifyOtp, resendOtp , forgotPassword, resetPassword,updateProfile, getDetails} from "./user.service.js"
+import { signUpService, loginService, meService, refreshTokenService, verifyOtp, resendOtp, forgotPassword, resetPassword, updateProfile, getDetails } from "./user.service.js"
 import { ApiError } from "../../utils/ApiError.js";
+import { env } from "../../config/env.js";
 export const signupController = asyncHandler(async (req: Request, res: Response) => {
 
     const result = await signUpService(req.body)
@@ -51,7 +52,7 @@ export const meController = asyncHandler(async (req: Request, res: Response) => 
     })
 })
 
-export const getDetailsController = asyncHandler(async(req: Request, res: Response)=> {
+export const getDetailsController = asyncHandler(async (req: Request, res: Response) => {
 
     const result = await getDetails(req.params.username, req.user?.userId)
 
@@ -73,15 +74,15 @@ export const refreshTokenController = asyncHandler(async (req: Request, res: Res
 
     res.cookie("refreshToken", {
         httpOnly: true,
-        secure: false,
-        sameSite: "lax"
+        secure: env.NODE_ENV === "production",
+        sameSite: env.NODE_ENV === "production" ? "none" : "lax"
     })
 
     res.cookie("refreshToken", result.refreshToken, {
         httpOnly: true,
-        secure: false,
-        sameSite: "lax",
-        maxAge: 30 * 24 * 60 * 1000
+        secure: env.NODE_ENV === "production",
+        sameSite: env.NODE_ENV === "production" ? "none" : "lax",
+        maxAge: 30 * 24 * 60 * 60 * 1000
     })
 
     return res.status(200).json({
@@ -97,8 +98,8 @@ export const logoutController = asyncHandler(async (req: Request, res: Response)
 
     res.cookie("refreshToken", {
         httpOnly: true,
-        secure: false,
-        sameSite: "lax"
+        secure: env.NODE_ENV === "production",
+        sameSite: env.NODE_ENV === "production" ? "none" : "lax"
     })
     return res.status(200).json({
         success: true,
@@ -128,7 +129,7 @@ export const resendOtpController = asyncHandler(async (req: Request, res: Respon
     })
 })
 
-export const forgotPasswordController  = asyncHandler(async(req: Request, res: Response)=> {
+export const forgotPasswordController = asyncHandler(async (req: Request, res: Response) => {
 
     await forgotPassword(req.body.email)
 
@@ -139,7 +140,7 @@ export const forgotPasswordController  = asyncHandler(async(req: Request, res: R
     })
 })
 
-export const resetPasswordController = asyncHandler(async(req: Request, res: Response)=> {
+export const resetPasswordController = asyncHandler(async (req: Request, res: Response) => {
 
 
     await resetPassword(req.body.token, req.body.newPassword)
@@ -150,13 +151,13 @@ export const resetPasswordController = asyncHandler(async(req: Request, res: Res
     })
 })
 
-export const updateProfileController = asyncHandler(async(req: Request, res: Response)=> {
+export const updateProfileController = asyncHandler(async (req: Request, res: Response) => {
 
-    const result = await updateProfile(req.user?.userId, {body: req.body, file: req.file})
-    
+    const result = await updateProfile(req.user?.userId, { body: req.body, file: req.file })
+
     return res.status(200).json({
         success: true,
-        message:"profile updated",
+        message: "profile updated",
         data: result
     })
 })

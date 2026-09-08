@@ -13,6 +13,7 @@ import cookieParser from "cookie-parser"
 import { rateLimit } from "./middleware/rateLimit.middleware.js"
 import helmet from "helmet"
 import cors from "cors"
+import { env } from "./config/env.js"
 const apiRateLimit = rateLimit({
     limit: 100,
     windowSeconds: 60,
@@ -23,7 +24,7 @@ const app = express()
 
 app.use(helmet())
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: env.CLIENT_URL,
     credentials: true
 }))
 app.use(express.json())

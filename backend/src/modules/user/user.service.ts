@@ -9,6 +9,7 @@ import { sendMail } from "../../utils/transporter.js";
 import { generateHexToken } from "../../utils/token.js";
 import { uploadToCloudinary, deleteToCloudinary } from "../../utils/Upload.js";
 import { UploadApiResponse } from "cloudinary";
+import { env } from "../../config/env.js";
 
 export const signUpService = async (input: signupInput) => {
 
@@ -158,12 +159,12 @@ export const getDetails = async (username: string, userId: string) => {
     const [threadsCount, followersCount, followingCount] = await Promise.all([
         prisma.thread.count({
             where: {
-                authorId: user.id 
+                authorId: user.id
             }
         }),
         prisma.follow.count({
             where: {
-                followingId: user.id 
+                followingId: user.id
             }
         }),
         prisma.follow.count({
@@ -173,8 +174,8 @@ export const getDetails = async (username: string, userId: string) => {
         })
     ])
 
-    let isFollowing =false 
-    if(userId){
+    let isFollowing = false
+    if (userId) {
         const follow = await prisma.follow.findUnique({
             where: {
                 followingId_followerId: {
@@ -334,7 +335,7 @@ export const forgotPassword = async (email: string) => {
             EX: 900
         }
     )
-    const resetLink = `https://localhost:5000/api/v1/reset-password?=${resetToken}`
+    const resetLink = `${env.CLIENT_URL}/reset-password?token=${resetToken}`
 
     try {
         sendMail(
