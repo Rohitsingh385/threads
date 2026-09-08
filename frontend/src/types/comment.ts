@@ -1,29 +1,39 @@
 export interface CommentUser {
-    username: string 
-    avatarUrl: string | null 
+    username: string
+    avatarUrl: string | null
 }
-
+export interface Comment {
+    id: string 
+    content: string 
+    threadId: string 
+    username: string
+    userId: string 
+    parentId: string | null 
+    createdAt: string 
+    updatedAt: string 
+    deletedAt: string | null
+}
 export interface CommentResult {
     data: Comment[]
-    nextCursor: string | null 
+    nextCursor: string | null
 }
 
 export interface CommentResponse {
-    message: boolean 
+    message: boolean
     data: CommentResult
 }
 
 export interface CreateCommentResponse {
-    message: string 
+    message: string
     data: {
-        comment: Comment 
-        updateCommentCount:{
-            id: string 
-            content: string 
-            authorId: string 
-            likesCount: number 
-            commentsCount: number 
-            createdAt: string 
+        comment: Comment
+        updateCommentCount: {
+            id: string
+            content: string
+            authorId: string
+            likesCount: number
+            commentsCount: number
+            createdAt: string
             updatedAt: string
         }
     }

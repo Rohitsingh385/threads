@@ -18,7 +18,7 @@ function Navbar({ title, onLogout }: NavbarProps) {
             try {
                 const result = await getUnreadCount()
                 setUnreadCount(result.data)
-            } catch (error) {
+            } catch {
                 setError("unable to fetch notifications")
             }
         }
@@ -57,6 +57,9 @@ function Navbar({ title, onLogout }: NavbarProps) {
                         </>
                     )}
                 </nav>
+                {error && (
+                    <p className="text-red-500">{error}</p>
+                )}
             </div>
         </header>
     )

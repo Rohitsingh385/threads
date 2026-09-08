@@ -382,8 +382,11 @@ export function Thread() {
                                             type="button"
                                             onClick={() => {
                                                 setReplyingTo(comment.id)
-                                            }}>Reply</button>
-
+                                            }}>Reply
+                                        </button>
+                                            {replyError && (
+                                                <p className="text-red-500">{replyError}</p>
+                                            )}
                                         {replyingTo === comment.id && (
 
                                             <form onSubmit={handlCreateReply}
@@ -417,6 +420,11 @@ export function Thread() {
                                                 >
                                                     Cancel
                                                 </button>
+                                                {repliesError && (
+                                                    <p className="text-red-500">
+                                                        {replyError}
+                                                    </p>
+                                                )}
                                             </form>
                                         )}
                                         {!replies[comment.id] && (

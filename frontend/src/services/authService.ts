@@ -40,6 +40,9 @@ export interface MeResponse {
         bio: string | null
         avatarUrl: string | null
         avatarPublicId: string | null
+        threadsCount: number 
+        followersCount: number 
+        followingCount: number
     }
 }
 export async function signup(input: SignupInput): Promise<SignupResponse> {
