@@ -338,7 +338,7 @@ export const forgotPassword = async (email: string) => {
     const resetLink = `${env.CLIENT_URL}/reset-password?token=${resetToken}`
 
     try {
-        sendMail(
+       await sendMail(
             user.email,
             "Reset your password",
             `Click the link below to reset your password:
@@ -366,10 +366,7 @@ export const resetPassword = async (token: string, newPassword: string) => {
         `password-reset:${token}`
     )
     if (!userId) {
-        throw new ApiError(
-            400,
-            'invalid or expired reset token'
-        )
+        return
     }
 
     const user = await prisma.user.findUnique({

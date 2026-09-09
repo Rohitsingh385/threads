@@ -4,7 +4,7 @@ import { Login } from "./pages/Login";
 import { Layout } from "./components/Layout";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Signup } from "./pages/Signup";
-import { logout } from "./services/authService";
+import { forgotPassword, logout } from "./services/authService";
 import { useAuth } from "./context/AuthContext";
 import { setApiAccessToken } from "./services/api";
 import { EditProfile } from "./pages/EditProfile";
@@ -15,6 +15,8 @@ import { Bookmarks } from "./pages/Bookmarks";
 import { UserSearch } from "./pages/UserSearch";
 import { Notifications } from "./pages/Notifications";
 import { VerifyEmail } from "./pages/VerifyEmail";
+import { ForgotPassword } from "./pages/ForgotPassword";
+import { ResetPassword } from "./pages/ResetPassword";
 export function App() {
   const { setAccessToken, setUser } = useAuth()
 
@@ -76,21 +78,23 @@ export function App() {
           }
         />
         <Route
-        path="/notifications"
-        element={
-          <ProtectedRoute>
-            <Notifications/>
-          </ProtectedRoute>
-        }
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <Notifications />
+            </ProtectedRoute>
+          }
         />
-        <Route 
-        path="/verify-email"
-        element={
-          <ProtectedRoute>
-            <VerifyEmail/>
-          </ProtectedRoute>
-        }
+        <Route
+          path="/verify-email"
+          element={
+            <ProtectedRoute>
+              <VerifyEmail />
+            </ProtectedRoute>
+          }
         />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Route>
     </Routes>
   )

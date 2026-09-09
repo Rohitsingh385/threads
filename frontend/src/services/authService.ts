@@ -51,6 +51,14 @@ export interface VerifyOtpResponse {
     message: string 
 }
 
+export interface ForgotPassword {
+    success: boolean
+    message: string
+}
+export interface ResetPasswordResponse {
+    success: boolean
+    message: string
+}
 export async function VerifyOtp(otp: string): Promise<VerifyOtpResponse> {
     const response = await api.post<VerifyOtpResponse>("/users/verify-otp", {
         otp
@@ -88,4 +96,19 @@ export async function logout() {
 export async function refreshAccessToken(){
     const response = await api.post('/users/refresh')
     return response.data
+}
+
+export async function forgotPassword(email: string){
+    return api.post<ForgotPassword>("users/forgot-password", {
+        email
+    })
+}
+
+
+export async function resetPassword(token: string, newPassword: string){
+
+    return api.post<ResetPasswordResponse>("/users/reset-password", {
+        token,
+        newPassword
+    })
 }

@@ -117,7 +117,9 @@ export function Login() {
                     )}
 
                 </form>
-
+                    <p className="mt-4 text-center text-sm">
+                        <Link  to="/forgot-password" className="font-medium underline">Forgot password?</Link>
+                    </p>
                 <p className="mt-4 text-center text-sm">
                     Don't have an account?{" "}
                     <Link to="/signup" className="font-medium underline">
