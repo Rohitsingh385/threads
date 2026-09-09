@@ -15,6 +15,8 @@ import { Bookmarks } from "./pages/Bookmarks";
 import { UserSearch } from "./pages/UserSearch";
 import { Notifications } from "./pages/Notifications";
 import { VerifyEmail } from "./pages/VerifyEmail";
+import { ForgotPassword } from "./pages/ForgotPassword";
+import { ResetPassword } from "./pages/ResetPassword";
 export function App() {
   const { setAccessToken, setUser } = useAuth()
 
@@ -76,21 +78,23 @@ export function App() {
           }
         />
         <Route
-        path="/notifications"
-        element={
-          <ProtectedRoute>
-            <Notifications/>
-          </ProtectedRoute>
-        }
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <Notifications />
+            </ProtectedRoute>
+          }
         />
-        <Route 
-        path="/verify-email"
-        element={
-          <ProtectedRoute>
-            <VerifyEmail/>
-          </ProtectedRoute>
-        }
+        <Route
+          path="/verify-email"
+          element={
+            <ProtectedRoute>
+              <VerifyEmail />
+            </ProtectedRoute>
+          }
         />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Route>
     </Routes>
   )
