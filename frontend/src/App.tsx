@@ -14,6 +14,7 @@ import { Thread } from "./pages/Thread";
 import { Bookmarks } from "./pages/Bookmarks";
 import { UserSearch } from "./pages/UserSearch";
 import { Notifications } from "./pages/Notifications";
+import { VerifyEmail } from "./pages/VerifyEmail";
 export function App() {
   const { setAccessToken, setUser } = useAuth()
 
@@ -79,6 +80,14 @@ export function App() {
         element={
           <ProtectedRoute>
             <Notifications/>
+          </ProtectedRoute>
+        }
+        />
+        <Route 
+        path="/verify-email"
+        element={
+          <ProtectedRoute>
+            <VerifyEmail/>
           </ProtectedRoute>
         }
         />

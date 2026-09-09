@@ -27,8 +27,7 @@ export function Signup() {
         }
         setLoading(true)
         try {
-            const response = await signup(formdata)
-            console.log(response)
+            await signup(formdata)
             navigate('/login')
         } catch (error) {
             if (axios.isAxiosError(error)) {

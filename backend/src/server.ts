@@ -2,6 +2,9 @@ import app from "./app.js";
 import { env } from "./config/env.js";
 import { connectDB } from "./config/prisma.js";
 import { redisClient } from "./config/redis.js";
+import dns from "node:dns"
+
+dns.setDefaultResultOrder("ipv4first")
 
 const serverHandler = async () => {
     try {
