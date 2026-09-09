@@ -22,6 +22,7 @@ export function ResetPassword() {
 
         if(!token){
             setError("Invalid or missing reset token")
+            return
         }
         if(password.length < 8){
             setError("Password must be at least 9 characters")

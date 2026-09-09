@@ -4,7 +4,7 @@ import { Login } from "./pages/Login";
 import { Layout } from "./components/Layout";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Signup } from "./pages/Signup";
-import { forgotPassword, logout } from "./services/authService";
+import { logout } from "./services/authService";
 import { useAuth } from "./context/AuthContext";
 import { setApiAccessToken } from "./services/api";
 import { EditProfile } from "./pages/EditProfile";
