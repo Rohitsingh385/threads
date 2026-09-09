@@ -45,6 +45,23 @@ export interface MeResponse {
         followingCount: number
     }
 }
+
+export interface VerifyOtpResponse {
+    success: boolean 
+    message: string 
+}
+
+export async function VerifyOtp(otp: string): Promise<VerifyOtpResponse> {
+    const response = await api.post<VerifyOtpResponse>("/users/verify-otp", {
+        otp
+    })
+    return response.data
+}
+
+export async function resendOtp() {
+    const response = await api.post("/users/resend-otp")
+    return response.data
+}
 export async function signup(input: SignupInput): Promise<SignupResponse> {
     const response = await api.post<SignupResponse>('/users/signup', input)
 

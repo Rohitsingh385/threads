@@ -33,7 +33,11 @@ export function Login() {
             setApiAccessToken(result.data.accessToken)
             const meResult = await me()
             setUser(meResult.data)
-            navigate("/")
+            if(meResult.data.emailVerified){
+                navigate("/")
+            }else{
+                navigate("/verify-email")
+            }
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 setError(error.response?.data?.message || 'Login Failed')

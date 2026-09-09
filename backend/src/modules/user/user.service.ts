@@ -224,7 +224,7 @@ export const verifyOtp = async (userId: string, otp: string) => {
     const storedOtp = await redisClient.get(
         `otp:${userId}`
     )
-    console.log(storedOtp, otp)
+
     if (!storedOtp) {
         throw new ApiError(
             404,
