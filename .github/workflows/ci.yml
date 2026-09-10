@@ -24,6 +24,7 @@ jobs:
       CLOUDINARY_API_KEY: ci_test 
       CLOUDINARY_API_SECRET: ci_test
       CLIENT_URL: http://localhost:5173
+      RESEND_API_KEY: test-key
 
     services:
       postgres:

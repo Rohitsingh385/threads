@@ -1,12 +1,17 @@
 import { env } from "../config/env.js";
-import { transporter } from "../config/mail.js";
+import { Resend } from "resend";
+
+const resend = new Resend(env.RESEND_API_KEY)
 
 export const sendMail = async(to: string, subject: string, text: string)=> {
 
-    await transporter.sendMail({
-        from: env.EMAIL_USER,
+    const {error} = await resend.emails.send({
+        from : "Threads <noreply@rowhit.in>",
         to,
         subject,
         text
     })
+    if(error){
+        throw new Error(error.message)
+    }
 }
