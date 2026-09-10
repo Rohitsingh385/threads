@@ -19,12 +19,6 @@ const envSchema = z.object({
     REDIS_URL: z
         .string()
         .trim(),
-    EMAIL_USER: z
-        .string()
-        .trim(),
-    EMAIL_APP_PASSWORD: z
-        .string()
-        .trim(),
     CLOUDINARY_CLOUD_NAME: z
         .string()
         .trim(),
@@ -36,7 +30,9 @@ const envSchema = z.object({
         .trim(),
     NODE_ENV: z
         .enum(["development", "production", "test"])
-        .default("development")
+        .default("development"),
+    RESEND_API_KEY: z
+        .string()
 })
 
 export const env = envSchema.parse(process.env)
