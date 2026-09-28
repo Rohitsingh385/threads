@@ -29,7 +29,7 @@ const envSchema = z.object({
         .string()
         .trim(),
     NODE_ENV: z
-        .enum(["development", "production", "test"])
+        .enum(["development", "production", "test", "Benchmark"])
         .default("development"),
     RESEND_API_KEY: z
         .string()
