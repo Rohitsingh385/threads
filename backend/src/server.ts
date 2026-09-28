@@ -12,7 +12,12 @@ const serverHandler = async () => {
         await connectDB()
         console.log('DB connected')
 
-        await redisClient.connect()
+        try {
+            await redisClient.connect()
+            console.log("REdis connected")
+        } catch (erorr) {
+            console.error("Redis unavailable, continuing without Redis")
+        }
 
         app.listen(env.PORT, () => {
             console.log(`http://localhost:${env.PORT}`)
