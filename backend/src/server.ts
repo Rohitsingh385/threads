@@ -1,10 +1,12 @@
 import app from "./app.js";
 import { env } from "./config/env.js";
-import { connectDB } from "./config/prisma.js";
+import { connectDB, prisma } from "./config/prisma.js";
 import { redisClient } from "./config/redis.js";
 import dns from "node:dns"
 
 dns.setDefaultResultOrder("ipv4first")
+
+let server: ReturnType<typeof app.listen>
 
 const serverHandler = async () => {
     try {
@@ -19,7 +21,7 @@ const serverHandler = async () => {
             console.error("Redis unavailable, continuing without Redis")
         }
 
-        app.listen(env.PORT, () => {
+         server = app.listen(env.PORT, () => {
             console.log(`http://localhost:${env.PORT}`)
         })
 
@@ -28,5 +30,24 @@ const serverHandler = async () => {
         process.exit(1)
     }
 }
+
+const shutdown = async(signal: string) => {
+    console.log(`${signal} received. starting graceful shutdown..`)
+    server.close(async()=> {
+        console.log(`http server closed`)
+        
+        await prisma.$disconnect()
+        console.log(`prisma disconnected`)
+
+        await redisClient.quit()
+        console.log(`redis disconnected`)
+
+        process.exit(0)
+    })
+}
+
+process.on("SIGTERM", () => shutdown("SIGTERM"))
+process.on("SIGINT", ()=> shutdown("SIGINT"))
+
 
 serverHandler()

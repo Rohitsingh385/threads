@@ -25,7 +25,7 @@ export const rateLimit = ({ limit, windowSeconds, keyPrefix }: RateLimitOptions)
             console.error("Rate limtier unavailable, allowing req")
             return next()
         }
-        console.log("RATE LIMIT COUNT:", count);
+       
         if (count > limit) {
             const remainingTime = await getCacheTTL(key)
             return res.status(429).json({

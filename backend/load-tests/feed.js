@@ -1,11 +1,11 @@
 import http from "k6/http"
 
-const BASE_URL = "http://localhost:5000/api/v1"
-const ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlMTE0OThkZi1hNmY1LTQ2NzgtODAwZS00ZDVkNjYxYWMxOTciLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc5MDQxNDk3NywiZXhwIjoxNzkwNDM2NTc3fQ.M-2sXuxpzgYZIM9tNeAsCpWHgVdw9ZbBIvtRxbK85jw"
+const BASE_URL = "http://localhost:8081/api/v1"
+const ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlMTE0OThkZi1hNmY1LTQ2NzgtODAwZS00ZDVkNjYxYWMxOTciLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc5MTAxMTczOSwiZXhwIjoxNzkxMDMzMzM5fQ.u_YNsp8WoWIMi1_5hfGhR4Kwzi5Rwnc1QvdRvCEb6-Y"
 
 export const options = {
-    vus: 1,
-    iterations: 20
+    vus: 10,
+    duration: "30s"
 }
 
 export default function () {

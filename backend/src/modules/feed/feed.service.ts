@@ -3,6 +3,7 @@ import { redisClient } from "../../config/redis.js"
 import { getCache, setCache, acquireLock, releaseLock } from "../../utils/cache.js"
 
 
+
 export const getFeed = async (userId: string, limit: number, cursor?: string) => {
 
     const cacheKey = `feed:user:${userId}:cursor:${cursor ?? "first"}:limit:${limit}`
@@ -109,8 +110,7 @@ export const getFeed = async (userId: string, limit: number, cursor?: string) =>
                     nextCursor = generatedFeed.nextCursor
                     hasNextPage = generatedFeed.hasNextPage
 
-                    const ttl = 60 + Math.floor(Math.random() * 30)
-
+                    const ttl = 60 + Math.floor(Math.random() * 30)    
                     await setCache(cacheKey, generatedFeed, ttl)
                 } finally {
                     await releaseLock(cacheKey)
