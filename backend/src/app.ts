@@ -14,6 +14,7 @@ import { rateLimit } from "./middleware/rateLimit.middleware.js"
 import helmet from "helmet"
 import cors from "cors"
 import { env } from "./config/env.js"
+import { prisma } from "./config/prisma.js"
 const apiRateLimit = rateLimit({
     limit: 100,
     windowSeconds: 60,
@@ -35,8 +36,25 @@ app.use(cookieParser())
 app.get('/health', (req, res) => {
     res.status(200).json({
         success: true,
-        message: "Server is running"
+        message: "Server is running",
+        pid: process.pid
     })
+})
+app.get("/ready", async(req, res) => {
+    try{
+        await prisma.$queryRaw`SELECT 1`;
+        res.status(200).json({
+            success: true ,
+            message: "server is ready",
+            pid: process.pid 
+        });
+    }catch(error){
+        res.status(503).json({
+            success: false, 
+            message: "Server is not ready",
+            pid: process.pid
+        })
+    }
 })
 
 app.use(apiRateLimit)
