@@ -2,6 +2,7 @@ import { NotificationType } from "@prisma/client"
 import { prisma } from "../../config/prisma.js"
 import { ApiError } from "../../utils/ApiError.js"
 import { createNotification } from "../notification/notification.service.js"
+import { notificationQueue } from "../../queue/notification.queue.js"
 
 
 
@@ -31,16 +32,19 @@ export const likeService = async (userId: string, threadId: string) => {
                 }
             })
 
-            if (thread.authorId !== userId) {
-                await createNotification(tx, { recipientId: thread.authorId, actorId: userId, type: NotificationType.LIKE, threadId })
-            }
-
             return {
                 like,
                 thread
             }
 
         })
+        if (result.thread.authorId !== userId) {
+            await notificationQueue.add("like-notification", {
+                recipientId: result.thread.authorId,
+                actorId: userId,
+                threadId,
+            });
+        }
         return {
             liked: true,
             likesCount: result.thread.likesCount

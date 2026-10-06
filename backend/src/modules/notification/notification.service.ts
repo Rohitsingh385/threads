@@ -1,9 +1,8 @@
-import { Prisma, NotificationType } from "@prisma/client"
+import { NotificationType } from "@prisma/client"
 import { prisma } from "../../config/prisma.js"
 import { ApiError } from "../../utils/ApiError.js"
 
 export const createNotification = async (
-    tx: Prisma.TransactionClient,
     data: {
         recipientId: string
         actorId: string
@@ -13,7 +12,21 @@ export const createNotification = async (
     }
 ) => {
 
-    return tx.notification.create({
+    const existingNotification = await prisma.notification.findFirst({
+        where: {
+            recipientId: data.recipientId,
+            actorId: data.actorId,
+            NotificationType: data.type,
+            threadId: data.threadId,
+            commentId: data.commentId 
+        }
+    })
+    console.log(existingNotification)
+    if(existingNotification){
+        return existingNotification
+    }
+
+    return prisma.notification.create({
         data: {
             recipientId: data.recipientId,
             actorId: data.actorId,
