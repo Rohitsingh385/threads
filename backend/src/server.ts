@@ -2,6 +2,7 @@ import app from "./app.js";
 import { env } from "./config/env.js";
 import { connectDB, prisma } from "./config/prisma.js";
 import { redisClient } from "./config/redis.js";
+import "./queue/notification.worker.js"
 import dns from "node:dns"
 
 dns.setDefaultResultOrder("ipv4first")
