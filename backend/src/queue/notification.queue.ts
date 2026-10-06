@@ -9,7 +9,7 @@ export interface LikeNotificationJob {
 
 export const notificationQueue = new Queue<LikeNotificationJob>("notification", {
     connection:{
-        url: env.REDIS_URL
+        url: env.BULLMQ_REDIS_URL
     },
     defaultJobOptions: {
         attempts: 3,

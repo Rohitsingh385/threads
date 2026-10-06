@@ -32,7 +32,9 @@ const envSchema = z.object({
         .enum(["development", "production", "test", "Benchmark"])
         .default("development"),
     RESEND_API_KEY: z
-        .string()
+        .string(),
+    BULLMQ_REDIS_URL: z.string().trim()
+
 })
 
 export const env = envSchema.parse(process.env)

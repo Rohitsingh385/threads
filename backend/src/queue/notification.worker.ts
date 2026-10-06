@@ -20,7 +20,7 @@ const notificationWorker = new Worker("notification",async (job) => {
     },
     {
         connection: {
-            url: env.REDIS_URL,
+            url: env.BULLMQ_REDIS_URL,
         },
     }
 );
