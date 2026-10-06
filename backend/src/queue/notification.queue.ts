@@ -7,7 +7,7 @@ export interface LikeNotificationJob {
     threadId: string 
 }
 
-export const notificationQueue = new Queue<LikeNotificationJob>("notification", {
+export const notificationQueue = env.NODE_ENV === "test" ? null : new Queue<LikeNotificationJob>("notification", {
     connection:{
         url: env.BULLMQ_REDIS_URL
     },

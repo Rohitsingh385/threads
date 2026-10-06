@@ -38,7 +38,7 @@ export const likeService = async (userId: string, threadId: string) => {
             }
 
         })
-        if (result.thread.authorId !== userId) {
+        if (result.thread.authorId !== userId && notificationQueue) {
             await notificationQueue.add("like-notification", {
                 recipientId: result.thread.authorId,
                 actorId: userId,
