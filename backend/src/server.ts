@@ -4,7 +4,7 @@ import { connectDB, prisma } from "./config/prisma.js";
 import { redisClient } from "./config/redis.js";
 import "./queue/notification.worker.js"
 import dns from "node:dns"
-
+import { logger } from "./utils/logger.js";
 dns.setDefaultResultOrder("ipv4first")
 
 let server: ReturnType<typeof app.listen>
@@ -23,7 +23,9 @@ const serverHandler = async () => {
         }
 
          server = app.listen(env.PORT, () => {
-            console.log(`http://localhost:${env.PORT}`)
+            logger.info("server started", {
+                port: env.PORT
+            })
         })
 
     } catch (error) {

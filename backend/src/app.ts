@@ -15,6 +15,8 @@ import helmet from "helmet"
 import cors from "cors"
 import { env } from "./config/env.js"
 import { prisma } from "./config/prisma.js"
+import { requestLogger } from "./middleware/requestLogger.middleware.js"
+
 const apiRateLimit = rateLimit({
     limit: 100,
     windowSeconds: 60,
@@ -30,7 +32,7 @@ app.use(cors({
 }))
 app.use(express.json())
 app.use(cookieParser())
-
+app.use(requestLogger)
 
 
 app.get('/health', (req, res) => {
